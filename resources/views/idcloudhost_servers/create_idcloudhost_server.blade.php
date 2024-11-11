@@ -265,55 +265,52 @@
                                         @endforeach
                                     </div>
                                     <!-- Configuration Section -->
-                                    <div class="jp-Radio-button wide">
-                                        <input type="radio" name="size" id="radio-size-custom"
-                                            class="jp-Radio-button-input" value="custom">
-                                        <label for="radio-size-custom" class="jp-Radio-button-label">
-                                            <div class="jp-Radio-button-content price">
-                                                <span class="price-monthly" data-notranslate="true">Rp 87.000</span> /
-                                                month<br>
-                                                <span class="price-hourly" data-notranslate="true">Rp 120</span> / hour
-                                            </div>
-
-                                            <div class="jp-Radio-button-content info">
-                                                <!-- CPU Slider -->
-                                                <div class="jp-Slider">
-                                                    <div class="label">CPU</div>
-                                                    <div class="rangeslider" data-min="2" data-max="16" data-step="1">
-                                                        <div class="rangeslider__fill"></div>
-                                                        <div class="rangeslider__handle">
-                                                            <div class="rangeslider__handle-label">2</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="amount">2-16</div>
-                                                </div>
-
-                                                <!-- RAM Slider -->
-                                                <div class="jp-Slider">
-                                                    <div class="label">GB RAM</div>
-                                                    <div class="rangeslider" data-min="2" data-max="16" data-step="1">
-                                                        <div class="rangeslider__fill"></div>
-                                                        <div class="rangeslider__handle">
-                                                            <div class="rangeslider__handle-label">2</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="amount">2-16</div>
-                                                </div>
-
-                                                <!-- Disk Slider -->
-                                                <div class="jp-Slider">
-                                                    <div class="label">GB DISK</div>
-                                                    <div class="rangeslider" data-min="20" data-max="1000" data-step="10">
-                                                        <div class="rangeslider__fill"></div>
-                                                        <div class="rangeslider__handle">
-                                                            <div class="rangeslider__handle-label">20</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="amount">20-1000</div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    </div>
+                     <form action="/your-backend-endpoint" method="POST">
+    <div class="jp-Radio-button wide">
+        <input type="radio" name="size" id="radio-size-custom" class="jp-Radio-button-input" value="custom">
+        <label for="radio-size-custom" class="jp-Radio-button-label">
+            <div class="jp-Radio-button-content price">
+                <span class="price-monthly" data-notranslate="true">Rp 87.000</span> / month<br>
+                <span class="price-hourly" data-notranslate="true">Rp 120</span> / hour
+            </div>
+            
+            <div class="jp-Radio-button-content info">
+                <!-- CPU Slider -->
+                <div class="jp-Slider">
+                    <div class="label">CPU</div>
+                    <div class="rangeslider" data-min="2" data-max="16" data-step="1" data-input="cpu-input">
+                        <div class="rangeslider__fill"></div>
+                        <div class="rangeslider__handle"><div class="rangeslider__handle-label">2</div></div>
+                    </div>
+                    <input type="hidden" name="cpu" id="cpu-input" value="2">
+                    <div class="amount">2-16</div>
+                </div>
+                
+                <!-- RAM Slider -->
+                <div class="jp-Slider">
+                    <div class="label">GB RAM</div>
+                    <div class="rangeslider" data-min="2" data-max="16" data-step="1" data-input="ram-input">
+                        <div class="rangeslider__fill"></div>
+                        <div class="rangeslider__handle"><div class="rangeslider__handle-label">2</div></div>
+                    </div>
+                    <input type="hidden" name="ram" id="ram-input" value="2">
+                    <div class="amount">2-16</div>
+                </div>
+                
+                <!-- Disk Slider -->
+                <div class="jp-Slider">
+                    <div class="label">GB DISK</div>
+                    <div class="rangeslider" data-min="20" data-max="1000" data-step="10" data-input="disk-input">
+                        <div class="rangeslider__fill"></div>
+                        <div class="rangeslider__handle"><div class="rangeslider__handle-label">20</div></div>
+                    </div>
+                    <input type="hidden" name="disk" id="disk-input" value="20">
+                    <div class="amount">20-1000</div>
+                </div>
+            </div>
+        </label>
+    </div>
+</form>
 
 
                                     <label for="servers">How many servers do you need?</label>
