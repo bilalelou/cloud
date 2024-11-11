@@ -118,42 +118,7 @@
             border-color: #007bff;
             outline: none;
         }
-
-        .config-section {
-            width: 80%;
-            max-width: 800px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .config-section h3 {
-            margin: 0 0 10px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .config-option {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .config-option label {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .config-option select {
-            padding: 8px;
-            font-size: 16px;
-            width: 50%;
-        }
-
-           .jp-Radio-button {
+    .jp-Radio-button {
             display: flex;
             align-items: flex-start;
             background-color: #fff;
@@ -314,40 +279,37 @@
                                                 <!-- CPU Slider -->
                                                 <div class="jp-Slider">
                                                     <div class="label">CPU</div>
-                                                    <div class="rangeslider" aria-valuemin="0" aria-valuemax="7"
-                                                        aria-valuenow="2">
-                                                        <div class="rangeslider__fill" style="width: 28%;"></div>
-                                                        <div class="rangeslider__handle" style="left: 28%;">
+                                                    <div class="rangeslider" data-min="2" data-max="16" data-step="1">
+                                                        <div class="rangeslider__fill"></div>
+                                                        <div class="rangeslider__handle">
                                                             <div class="rangeslider__handle-label">2</div>
                                                         </div>
                                                     </div>
-                                                    <div class="amount" data-notranslate="true">2-16</div>
+                                                    <div class="amount">2-16</div>
                                                 </div>
 
                                                 <!-- RAM Slider -->
                                                 <div class="jp-Slider">
                                                     <div class="label">GB RAM</div>
-                                                    <div class="rangeslider" aria-valuemin="0" aria-valuemax="7"
-                                                        aria-valuenow="2">
-                                                        <div class="rangeslider__fill" style="width: 28%;"></div>
-                                                        <div class="rangeslider__handle" style="left: 28%;">
+                                                    <div class="rangeslider" data-min="2" data-max="16" data-step="1">
+                                                        <div class="rangeslider__fill"></div>
+                                                        <div class="rangeslider__handle">
                                                             <div class="rangeslider__handle-label">2</div>
                                                         </div>
                                                     </div>
-                                                    <div class="amount" data-notranslate="true">2-16</div>
+                                                    <div class="amount">2-16</div>
                                                 </div>
 
                                                 <!-- Disk Slider -->
                                                 <div class="jp-Slider">
                                                     <div class="label">GB DISK</div>
-                                                    <div class="rangeslider" aria-valuemin="0" aria-valuemax="98"
-                                                        aria-valuenow="20">
-                                                        <div class="rangeslider__fill" style="width: 20%;"></div>
-                                                        <div class="rangeslider__handle" style="left: 20%;">
+                                                    <div class="rangeslider" data-min="20" data-max="1000" data-step="10">
+                                                        <div class="rangeslider__fill"></div>
+                                                        <div class="rangeslider__handle">
                                                             <div class="rangeslider__handle-label">20</div>
                                                         </div>
                                                     </div>
-                                                    <div class="amount" data-notranslate="true">20-1000</div>
+                                                    <div class="amount">20-1000</div>
                                                 </div>
                                             </div>
                                         </label>
@@ -357,7 +319,6 @@
                                     <label for="servers">How many servers do you need?</label>
                                     <input type="number" id="servers" name="servers" min="1"
                                         placeholder="Enter quantity" />
-
                                 </div>
                                 <button id="get_geos" class="btn btn-info card-options">Next Step</button>
                             </div>
@@ -372,5 +333,46 @@
         function showDropdowns() {
             document.getElementById('dropdowns').style.display = 'block';
         }
+    </script>
+
+    <script>
+        document.querySelectorAll('.rangeslider').forEach(slider => {
+            const handle = slider.querySelector('.rangeslider__handle');
+            const fill = slider.querySelector('.rangeslider__fill');
+            const handleLabel = handle.querySelector('.rangeslider__handle-label');
+            const min = parseInt(slider.getAttribute('data-min'));
+            const max = parseInt(slider.getAttribute('data-max'));
+            const step = parseInt(slider.getAttribute('data-step'));
+            let value = min;
+
+            function updateSlider(x) {
+                const rect = slider.getBoundingClientRect();
+                const percent = Math.min(Math.max((x - rect.left) / rect.width, 0), 1);
+                value = Math.round((percent * (max - min) + min) / step) * step;
+                const handlePosition = ((value - min) / (max - min)) * 100;
+
+                fill.style.width = `${handlePosition}%`;
+                handle.style.left = `${handlePosition}%`;
+                handleLabel.textContent = value;
+            }
+
+            handle.addEventListener('mousedown', function(event) {
+                event.preventDefault();
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            function onMouseMove(event) {
+                updateSlider(event.clientX);
+            }
+
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+
+            // Initialize the slider with min value
+            updateSlider(slider.getBoundingClientRect().left);
+        });
     </script>
 @endsection
