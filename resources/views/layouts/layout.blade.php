@@ -26,14 +26,15 @@
         <link href="{{ asset('assets/plugins/select2/select2.min.css') }}" rel="stylesheet" />
         <link id="theme" href="{{ asset('assets/colors/color1.css') }}" rel="stylesheet" type="text/css"/>
         <link href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css" rel="stylesheet" type="text/css">{{-- css for select cloud table makhdamch --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
 
     </head>
 
     <body class="app main-body">
 
-        <div id="global-loader" >
+        <!-- <div id="global-loader" >
             <img src="{{ asset('assets/images/svgs/loader.svg') }}" alt="loader">
-        </div>
+        </div> -->
 
         <div class="page">
             <div class="page-main">

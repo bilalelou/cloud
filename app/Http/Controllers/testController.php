@@ -1,55 +1,88 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\CloudServersProvider;
-use App\Models\CloudServer;
-use App\Models\User;
-use DB;
-use SSH;
-use Config;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Spatie\Valuestore\Valuestore;
+
 
 class testController extends Controller
 {
     function index()
     {
-        Auth::loginUsingId(1);
-
-        //verify api token
-            // $response = Http::withHeaders(['Authorization' => 'Bearer EKviawDiqmYxcDXdrfun8AZWoye81Ues0BJB8TlV','Content-Type' => 'application/json',])
-            //                 ->get('https://api.cloudflare.com/client/v4/user/tokens/verify');
-
-            // $data = $response->json();
-            // dd($data);
+         Auth::loginUsingId(1);
+         $user = auth()->user();
 
 
-        //get zone identifier of a domain
-            // curl -X GET "https://api.cloudflare.com/client/v4/zones?name=yourdomain.com" \
-            //     -H "Authorization: Bearer YOUR_API_TOKEN" \
-            //     -H "Content-Type: application/json" ;
+      //    $response = Http::withHeaders([
+      //     "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
+      // ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/locations");
 
-        //update dns records
-            // curl -X PUT "https://api.cloudflare.com/client/v4/zones/YOUR_ZONE_ID/dns_records/YOUR_DNS_RECORD_ID" \
-            //     -H "Authorization: Bearer YOUR_API_TOKEN" \
-            //     -H "Content-Type: application/json" \
-            //     --data '{"type":"A","name":"subdomain","content":"new_ip_address","ttl":120,"proxied":true}'
+      // $data = $response->json();
+      // dump($data);
+        //  dd(auth()->user()->toArray());
+       return redirect("/CloudServersProviders");
+          
 
-        //get a list of all domains (zones) associated with your Cloudflare account
-            // curl -X GET "https://api.cloudflare.com/client/v4/zones" \
-            //     -H "Authorization: Bearer YOUR_API_TOKEN" \
-            //     -H "Content-Type: application/json"
+    
+   
+        // $user = new User();
+
+        // // Set user details
+        // $user->name = "test";
+        // $user->email = "test@eimpact.com";
+        // $user->password = Hash::make('password'); 
+
+        // // Step 2: Save the user to the database
+        // // $user->save();
+
+        // $admin = Role::Create(['name'=>'new_role']);
+        //  $permissions = Permission::all();
+        //  $user->syncPermissions($permissions);
+        // $admin->givePermissionTo($permissions);
 
 
-        // dd(1111);
-        // $input = array("a" => "green", "red", "b" => "green", "blue", "red");
-        // print_r($input);
+        // if ($user) {
+        //     // Retrieve all permissions directly using the permissions relationship
+        //     $userPermissions = $user->permissions; // This returns a collection of permission objects
+        
+        //     // Optionally, convert to an array of permission names for easier reading
+        //     $permissionsArray = $userPermissions->pluck('name')->toArray();
+        
+        //     // Display or return the permissions
+        //     dump($permissionsArray); // For debugging
+        
+        //     // Example JSON response (if in a controller method)
+        //     return response()->json([
+        //         'message' => 'Permissions retrieved successfully.',
+        //         'permissions' => $permissionsArray
+        //     ]);
+        // } else {
+        //     return response()->json([
+        //         'message' => 'User not authenticated.',
+        //     ], 401);
+        // }
+        
+        
+        
+    //     if ($user) {
+    //         // Retrieve the user's roles
+            // $userRole = $user->getRoleNames(); // Gets a collection of role names
 
-        // $user = User::find(1);
-        // $user->givePermissionTo('update_servers_rsa');
-        // dd($user->can('update_servers_rsa'));
+    //         // Dump the roles for debugging
+    //         dump("User roles:");
+    //         dump($userRole->toArray()); // Convert the roles to an array and dump it
 
-    }
+    //         return response()->json([
+    //             'message' => 'User roles have been dumped successfully.',
+    //             'roles' => $userRole
+    //         ]);
+    //     } else {
+    //         return response()->json([
+    //             'message' => 'User not found.',
+    //         ], 404);
+    //     }
+    // }
+
 }
+}  
+ 

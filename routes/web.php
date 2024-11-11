@@ -20,8 +20,8 @@ Route::post('/', 'App\Http\Controllers\CloudServersController@index');
 // Route::get('/123', function () {
 //     Auth::loginUsingId(1);
 // });
- Route::get('/test', 'App\Http\Controllers\testController@index');
-// Route::fallback(function () {return response()->view('500');});
+Route::get('/test', 'App\Http\Controllers\testController@index');
+Route::fallback(function () {return response()->view('500');});
 
 ///////////////////////////////////providers////////////////////////////////////////
 Route::get('CloudServersProviders','App\Http\Controllers\CloudServersProviderController@index');
@@ -84,3 +84,9 @@ Route::group(['middleware' => ['permission:super_admin']], function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+/////////////////////////////////idcloudhost/////////////////////////////////////
+
+
+Route::get('CreateIdCloudHostIndex','App\Http\Controllers\IdCloudHostController@createIdCloudHostIndex');

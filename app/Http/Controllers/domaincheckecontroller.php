@@ -11,6 +11,8 @@ class domaincheckecontroller extends Controller
     //
     public function envoidomain()
     {
+      return "true";
+
       $url = url()->current();
       $host1 = preg_replace("/^https?:\/\/(.+)$/i", "\\1", $url);
       $host = str_replace("/", ":", $host1);

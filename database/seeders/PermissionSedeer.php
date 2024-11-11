@@ -14,21 +14,21 @@ class PermissionSedeer extends Seeder
      */
     public function run()
     {
-        $permissions = [
-            [
-                "name" => "see_settings",
-                "guard_name" => "web",
-            ],
-            [
-                "name" => "see_providers",
-                "guard_name" => "web",
-            ],
-            [
-                "name" => "see_servers",
-                "guard_name" => "web",
-            ]
-        ];
+        //  $permissions = [
+        //     [
+        //         "name" => "see_settings",
+        //         "guard_name" => "web",
+        //     ],
+        //     [
+        //         "name" => "see_providers",
+        //         "guard_name" => "web",
+        //     ],
+        //     [
+        //         "name" => "see_servers",
+        //         "guard_name" => "web",
+        //     ]
+        // ];
 
-        Permission::insert($permissions);
+        // Permission::insert($permissions);
     }
 }

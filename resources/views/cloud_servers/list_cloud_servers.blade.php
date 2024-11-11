@@ -21,7 +21,7 @@
                                     @can('delete_cloud_server')
                                         <button class="btn btn-danger btn-sm" onclick="deleteServersModal()"><i class="fe fe-trash mr-1"></i>Delete Server(s)</button>
                                     @endcan
-                                    @canany(['create_digitalocean_server', 'create_linode_server', 'create_hetzner_server','create_azure_server','create_kamatera_server'])
+                                    @canany(['create_digitalocean_server', 'create_linode_server', 'create_hetzner_server','create_azure_server','create_kamatera_server','create_idcloudhost_server'])
                                         <button type="button" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
                                             <i class="fe fe-plus mr-1"></i>New Server(s)
                                         </button>
@@ -41,6 +41,9 @@
                                             @can('create_kamatera_server')
                                                 <a class="dropdown-item"  href="/CreateKamateraServersIndex">New Kamatera Server</a>
                                             @endcan
+                                            @can('create_idcloudhost_server') 
+                                                <a class="dropdown-item"  href="/CreateIdCloudHostIndex">New IdCloudHost Server</a>
+                                            @endcan 
                                         </div>
                                     @endcanany
                                 </div>

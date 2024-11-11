@@ -30,18 +30,7 @@ class HetznerController extends Controller
 
     public function getHetznerOptions()
     {
-        $api_key = ServerProvider::where("is_cloud", true)->where("cloud_type", "hetzner")->where("status", true)->first()->cloud_api_key;
-
-        /////////////////////////regions////////////////////////////
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.hetzner.cloud/v1/locations");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer '. $api_key,
-        ]);
-        $regions = json_decode(curl_exec($ch), true);
 
         /////////////////////////images////////////////////////////
 
