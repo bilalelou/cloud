@@ -1,9 +1,7 @@
 @extends('layouts.layout')
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
-   <style>
-    
-
+    <style>
         /* Headers styling */
         h3 {
             color: #333;
@@ -16,7 +14,8 @@
             display: flex;
             gap: 20px;
             padding: 20px 0;
-            justify-content: center; /* Center flags horizontally */
+            justify-content: center;
+            /* Center flags horizontally */
         }
 
         .flag-container {
@@ -28,7 +27,8 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 120px; /* Increase the width to make it larger */
+            width: 120px;
+            /* Increase the width to make it larger */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -38,13 +38,15 @@
         }
 
         .flag-icon {
-            font-size: 60px; /* Increased font size for larger flags */
+            font-size: 60px;
+            /* Increased font size for larger flags */
             margin-bottom: 8px;
         }
 
         .flag-container p {
             margin: 0;
-            font-size: 16px; /* Slightly larger font size for country name */
+            font-size: 16px;
+            /* Slightly larger font size for country name */
             font-weight: bold;
             color: #333;
         }
@@ -62,7 +64,8 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 15px;
-            width: calc(33.33% - 20px); /* Ensures 3 cards fit in a row with gap */
+            width: calc(33.33% - 20px);
+            /* Ensures 3 cards fit in a row with gap */
             box-sizing: border-box;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -99,6 +102,23 @@
             border-color: #007bff;
             outline: none;
         }
+
+         input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            transition: border 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
     </style>
 
     <link rel="stylesheet" href="css/waitMe.min.css">
@@ -160,7 +180,7 @@
                                                     <select id="version-{{ $loop->index }}" name="version">
                                                         @foreach ($osSystem['versions'] as $version)
                                                             <option value="{{ $version['os_version'] }}">
-                                                                {{ $version['display_name'] }} 
+                                                                {{ $version['display_name'] }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -170,8 +190,12 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                    <label for="servers">How many servers do you need?</label>
+                                    <input type="number" id="servers" name="servers" min="1"
+                                        placeholder="Enter quantity" />
 
                                 </div>
+                                <button id="get_geos" class="btn btn-info card-options">Next Step</button>
                             </div>
                         </div>
                     </div>
