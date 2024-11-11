@@ -103,7 +103,7 @@
             outline: none;
         }
 
-         input[type="number"] {
+        input[type="number"] {
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -119,6 +119,115 @@
             outline: none;
         }
 
+        .config-section {
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-section h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .config-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .config-option label {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .config-option select {
+            padding: 8px;
+            font-size: 16px;
+            width: 50%;
+        }
+
+           .jp-Radio-button {
+            display: flex;
+            align-items: flex-start;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .jp-Radio-button-input {
+            display: none;
+        }
+        .jp-Radio-button-label {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            width: 100%;
+        }
+        .jp-Radio-button-content.price {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .jp-Radio-button-content.info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .price-monthly, .price-hourly {
+            font-weight: bold;
+            color: #333;
+        }
+        .jp-Slider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            min-width: 50px;
+        }
+        .rangeslider {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            background-color: #ddd;
+            border-radius: 4px;
+        }
+        .rangeslider__fill {
+            background-color: #007bff;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+        }
+        .rangeslider__handle {
+            position: absolute;
+            top: -6px;
+            width: 20px;
+            height: 20px;
+            background-color: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 12px;
+        }
+        .amount {
+            font-size: 14px;
+            color: #555;
+        }
+        
     </style>
 
     <link rel="stylesheet" href="css/waitMe.min.css">
@@ -190,6 +299,61 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                    <!-- Configuration Section -->
+                                    <div class="jp-Radio-button wide">
+                                        <input type="radio" name="size" id="radio-size-custom"
+                                            class="jp-Radio-button-input" value="custom">
+                                        <label for="radio-size-custom" class="jp-Radio-button-label">
+                                            <div class="jp-Radio-button-content price">
+                                                <span class="price-monthly" data-notranslate="true">Rp 87.000</span> /
+                                                month<br>
+                                                <span class="price-hourly" data-notranslate="true">Rp 120</span> / hour
+                                            </div>
+
+                                            <div class="jp-Radio-button-content info">
+                                                <!-- CPU Slider -->
+                                                <div class="jp-Slider">
+                                                    <div class="label">CPU</div>
+                                                    <div class="rangeslider" aria-valuemin="0" aria-valuemax="7"
+                                                        aria-valuenow="2">
+                                                        <div class="rangeslider__fill" style="width: 28%;"></div>
+                                                        <div class="rangeslider__handle" style="left: 28%;">
+                                                            <div class="rangeslider__handle-label">2</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="amount" data-notranslate="true">2-16</div>
+                                                </div>
+
+                                                <!-- RAM Slider -->
+                                                <div class="jp-Slider">
+                                                    <div class="label">GB RAM</div>
+                                                    <div class="rangeslider" aria-valuemin="0" aria-valuemax="7"
+                                                        aria-valuenow="2">
+                                                        <div class="rangeslider__fill" style="width: 28%;"></div>
+                                                        <div class="rangeslider__handle" style="left: 28%;">
+                                                            <div class="rangeslider__handle-label">2</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="amount" data-notranslate="true">2-16</div>
+                                                </div>
+
+                                                <!-- Disk Slider -->
+                                                <div class="jp-Slider">
+                                                    <div class="label">GB DISK</div>
+                                                    <div class="rangeslider" aria-valuemin="0" aria-valuemax="98"
+                                                        aria-valuenow="20">
+                                                        <div class="rangeslider__fill" style="width: 20%;"></div>
+                                                        <div class="rangeslider__handle" style="left: 20%;">
+                                                            <div class="rangeslider__handle-label">20</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="amount" data-notranslate="true">20-1000</div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+
                                     <label for="servers">How many servers do you need?</label>
                                     <input type="number" id="servers" name="servers" min="1"
                                         placeholder="Enter quantity" />
