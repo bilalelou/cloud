@@ -1,52 +1,106 @@
 @extends('layouts.layout')
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
-  <style>
-        .flags-container {
-            display: flex;
-            flex-wrap: nowrap; 
-            gap: 20px; 
-            padding: 20px;
-            overflow-x: auto; 
-            background-color: #f4f4f9;
+   <style>
+    
+
+        /* Headers styling */
+        h3 {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .flag-card {
-            min-width: 120px;
-            padding: 15px;
+        /* Flags Container */
+        .flags-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+            justify-content: center; /* Center flags horizontally */
+        }
+
+        .flag-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             background-color: #ffffff;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 120px; /* Increase the width to make it larger */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            flex-shrink: 0; /* 
         }
 
-        .flag-card:hover {
+        .flag-container:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         .flag-icon {
-            font-size: 60px;
-            border-radius: 5px;
+            font-size: 60px; /* Increased font size for larger flags */
+            margin-bottom: 8px;
         }
 
-        .country-name {
-            margin-top: 10px;
-            font-size: 16px;
+        .flag-container p {
+            margin: 0;
+            font-size: 16px; /* Slightly larger font size for country name */
             font-weight: bold;
             color: #333;
         }
 
-        .flags-container::-webkit-scrollbar {
-            display: none;
+        /* OS Container with 3 cards in each row */
+        .os-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
         }
-        .flags-container {
-            -ms-overflow-style: none;  /* لـ IE و Edge */
-            scrollbar-width: none;  /* لـ Firefox */
+
+        .os-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            width: calc(33.33% - 20px); /* Ensures 3 cards fit in a row with gap */
+            box-sizing: border-box;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .os-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .os-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .os-card label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .os-card select {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 5px;
+            background-color: #f9f9f9;
+            transition: border 0.3s ease;
+        }
+
+        .os-card select:focus {
+            border-color: #007bff;
+            outline: none;
         }
     </style>
+
     <link rel="stylesheet" href="css/waitMe.min.css">
     <div class="hor-content main-content">
         <div class="container">
@@ -78,21 +132,45 @@
                                     @endphp
                                     <div class="flags-container">
 
-                                    @foreach ($regions as $region)
-                                        @php
-                                            // Convert the three-character code to a two-character code
-                                            $countryCode =
-                                                $countryCodeMapping[$region['country_code']] ??
-                                                strtolower(substr($region['country_code'], 0, 2));
-                                        @endphp
+                                        @foreach ($regions as $region)
+                                            @php
+                                                // Convert the three-character code to a two-character code
+                                                $countryCode =
+                                                    $countryCodeMapping[$region['country_code']] ??
+                                                    strtolower(substr($region['country_code'], 0, 2));
+                                            @endphp
 
-                                        <div class="flag-container">
-                                            <!-- Display the flag based on the two-character code -->
-                                            <span class="flag-icon flag-icon-{{ $countryCode }}"></span>
-                                            <p>{{ $region['display_name'] }}</p>
-                                        </div>
-                                    @endforeach
+                                            <div class="flag-container">
+                                                <!-- Display the flag based on the two-character code -->
+                                                <span class="flag-icon flag-icon-{{ $countryCode }}"></span>
+                                                <p>{{ $region['display_name'] }}</p>
+                                            </div>
+                                        @endforeach
                                     </div>
+                                    <h3>Operating Systems</h3>
+                                    <div class="os-container">
+                                        @foreach ($osSystems as $osSystem)
+                                            <div class="os-card">
+                                                <!-- Display the main OS system name -->
+                                                <p class="os-name">{{ $osSystem['display_name'] }}</p>
+
+                                                <!-- Check if the OS system has versions -->
+                                                @if (isset($osSystem['versions']) && is_array($osSystem['versions']))
+                                                    <label for="version-{{ $loop->index }}">version:</label>
+                                                    <select id="version-{{ $loop->index }}" name="version">
+                                                        @foreach ($osSystem['versions'] as $version)
+                                                            <option value="{{ $version['os_version'] }}">
+                                                                {{ $version['display_name'] }} 
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                @else
+                                                    <p>No versions available</p>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
