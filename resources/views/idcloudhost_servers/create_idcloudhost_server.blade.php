@@ -261,4 +261,18 @@
         }
     </script>
 
+    <script>
+        function updateValue(slider, display, hiddenInput) {
+            slider.addEventListener('input', function() {
+                document.getElementById(display).textContent = this.value;
+                document.getElementById(hiddenInput).value = this.value; // Update hidden input value
+            });
+        }
+
+        // Initialize all sliders with their respective display and hidden input fields
+        updateValue(document.getElementById('cpu-input'), 'cpu-value', 'cpu-hidden');
+        updateValue(document.getElementById('ram-input'), 'ram-value', 'ram-hidden');
+        updateValue(document.getElementById('disk-input'), 'disk-value', 'disk-hidden');
+        updateValue(document.getElementById('numserver-input'), 'numserver-value', 'numserver-hidden');
+    </script>
 @endsection
