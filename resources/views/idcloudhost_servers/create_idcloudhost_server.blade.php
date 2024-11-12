@@ -100,10 +100,7 @@
                                     <div class="flex items-center space-x-4">
                                         <label class="w-20 text-gray-700 font-medium">N° Server</label>
                                         <div class="flex-grow relative">
-                                            <input type="range" min="1" max="10" step="1"
-                                                value="1"
-                                                class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer slider"
-                                                id="numserver-input">
+                                            <input type="range" min="1" max="10" step="1" value="1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer slider" id="numserver-input">
                                             <div class="absolute top-0 text-blue-500 font-bold right-0"
                                                 id="numserver-value">1</div>
                                         </div>
@@ -111,10 +108,7 @@
                                     </div>
                                 </div>
                                 <div class="flex justify-center mt-8">
-                                    <button id="get_geos"
-                                        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 ease-in-out">
-                                        Next Step
-                                    </button>
+                                    <button id="get_geos" class="btn btn-info" onclick="nextStep()">Next Step</button>
                                 </div>
 
                             </div>
@@ -142,7 +136,7 @@
 
                         console.log(response);
                         console.log("we good");
-                        afficeregion(response);
+                        showRegionsAndSystems(response);
                     } else {
                         console.log("fail !!!");
                     }
@@ -154,23 +148,18 @@
         }
     </script>
     <script>
-        function afficeregion(data) {
-
-
+        function showRegionsAndSystems(data) 
+        {
             // Get the container element where the data will be displayed
             const container = document.getElementById('regions-container');
             container.innerHTML = ""; // Clear any existing content
             const systemContainer = document.getElementById("os-container");
-
-
-
 
             data.regions.forEach(region => {
                 // Convert the country code to lowercase for the flag class
                 const countryCodeMapping = {};
                 const countryCode = countryCodeMapping[region.country_code] ||
                     region.country_code.substring(0, 2).toLowerCase();
-
 
                 // Create a new div element for each region
                 const regionElement = document.createElement('div');
@@ -179,38 +168,36 @@
 
                 // Set the inner HTML of the new div to include region details
                 regionElement.innerHTML = `
-            <span class="flag-icon flag-icon-${countryCode} text-5xl mb-4 transition-transform duration-300 group-hover:scale-110"></span>
-            <p class="text-gray-800 font-semibold text-lg text-center">${region.display_name}</p>
-        `;
+                    <span class="flag-icon flag-icon-${countryCode} text-5xl mb-4 transition-transform duration-300 group-hover:scale-110"></span>
+                    <p class="text-gray-800 font-semibold text-lg text-center">${region.display_name}</p>
+                `;
 
                 // Append the new div element to the container
                 container.appendChild(regionElement);
             });
 
-
-            // Check if the container is available before appending to it
-            if (systemContainer) {
+            if(systemContainer)
+            {
                 data.systems.forEach(system => {
-                    // Log the system object for debugging
                     console.log(system);
 
-                    // Main card div
                     const systemElement = document.createElement("div");
                     systemElement.className =
                         "os-card bg-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition duration-300 p-6 w-full flex flex-col items-center text-center cursor-pointer";
 
-                    // Icon section
                     const iconContainer = document.createElement("div");
                     iconContainer.className = "mb-4";
 
-                    // Check if system.icon exists
-                    if (system.icon) {
+                    if(system.icon)
+                    {
                         const img = document.createElement("img");
                         img.src = `data:image/svg+xml;base64,${system.icon}`;
                         img.alt = `${system.display_name} Logo`;
                         img.className = "w-12 h-12 mb-4";
                         iconContainer.appendChild(img);
-                    } else {
+                    }
+                    else
+                    {
                         const noIconDiv = document.createElement("div");
                         noIconDiv.className =
                             "w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 mb-4";
@@ -218,7 +205,6 @@
                         iconContainer.appendChild(noIconDiv);
                     }
 
-                    // OS Name
                     const osName = document.createElement("p");
                     osName.className = "text-lg font-semibold text-gray-800";
                     osName.textContent = system.display_name;
@@ -226,8 +212,8 @@
 
                     systemElement.appendChild(iconContainer);
 
-                    // Version Dropdown
-                    if (system.versions && system.versions.length > 0) {
+                    if(system.versions && system.versions.length > 0)
+                    {
                         const label = document.createElement("label");
                         label.className = "text-sm font-medium text-gray-600 mb-2";
                         label.textContent = "Select Version:";
@@ -245,17 +231,20 @@
 
                         systemElement.appendChild(label);
                         systemElement.appendChild(select);
-                    } else {
+                    }
+                    else
+                    {
                         const noVersionText = document.createElement("p");
                         noVersionText.className = "text-sm text-red-500 mt-4";
                         noVersionText.textContent = "No versions available";
                         systemElement.appendChild(noVersionText);
                     }
 
-                    // Append each OS card to the container
                     systemContainer.appendChild(systemElement);
                 });
-            } else {
+            }
+            else
+            {
                 console.error("Element with id 'os-container' not found.");
             }
         }
@@ -263,16 +252,33 @@
 
     <script>
         function updateValue(slider, display, hiddenInput) {
+
+            console.log("one");
+
             slider.addEventListener('input', function() {
                 document.getElementById(display).textContent = this.value;
-                document.getElementById(hiddenInput).value = this.value; // Update hidden input value
+                document.getElementById(hiddenInput).value = this.value; 
             });
+            }
+
+            updateValue(document.getElementById('cpu-input'), 'cpu-value', 'cpu-hidden');
+            updateValue(document.getElementById('ram-input'), 'ram-value', 'ram-hidden');
+            updateValue(document.getElementById('disk-input'), 'disk-value', 'disk-hidden');
+            updateValue(document.getElementById('numserver-input'), 'numserver-value', 'numserver-hidden');
+
+
+        function storeServers()
+        {
+            
         }
 
-        // Initialize all sliders with their respective display and hidden input fields
-        updateValue(document.getElementById('cpu-input'), 'cpu-value', 'cpu-hidden');
-        updateValue(document.getElementById('ram-input'), 'ram-value', 'ram-hidden');
-        updateValue(document.getElementById('disk-input'), 'disk-value', 'disk-hidden');
-        updateValue(document.getElementById('numserver-input'), 'numserver-value', 'numserver-hidden');
-    </script>
+        function nextStep()
+        {
+            const slider = document.getElementById('numserver-input');
+            const displayValue = document.getElementById('numserver-value');
+            
+            displayValue.textContent = slider.value; // Display the current value
+            console.log(slider.value); // Log the current value
+        } 
+    </script>    
 @endsection
