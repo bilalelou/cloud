@@ -27,6 +27,8 @@
         <link id="theme" href="{{ asset('assets/colors/color1.css') }}" rel="stylesheet" type="text/css"/>
         <link href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css" rel="stylesheet" type="text/css">{{-- css for select cloud table makhdamch --}}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     </head>
 

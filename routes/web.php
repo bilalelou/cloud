@@ -4,6 +4,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IdCloudHostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,4 +90,6 @@ require __DIR__.'/auth.php';
 /////////////////////////////////idcloudhost/////////////////////////////////////
 
 
-Route::get('CreateIdCloudHostIndex','App\Http\Controllers\IdCloudHostController@createIdCloudHostIndex');
+Route::get("/CreateIdCloudHostIndex", [IdCloudHostController::class, "createIdCloudHostIndex"]);
+Route::post("/getRegionsAndSystems", [IdCloudHostController::class, "getRegionsAndSystems"]);
+Route::post('storeIdCloudHost','App\Http\Controllers\IdCloudHostController@storeIdCloudHost')->name('create_idcloudhost_server.store');

@@ -10,53 +10,48 @@ use Spatie\Valuestore\Valuestore;
 
 class IdCloudHostController extends Controller
 {
-   public function createIdCloudHostIndex() {
+   public function createIdCloudHostIndex()
+   {
+      // return view('idcloudhost_servers.create_idcloudhost_server', compact('regions', 'osSystems'));
+      return view('idcloudhost_servers.create_idcloudhost_server');
+   }
 
-     /////////////////////////regions////////////////////////////
-        $regionsResponse = Http::withHeaders([
-        "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
-    ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/locations");
-        $regions = $regionsResponse->json();
+   public function storeIdCloudHost()
+   {
+      
+   }
 
-        
-    
- 
-     /////////////////////////os////////////////////////////
+   public function getRegionsAndSystems()
+   {
+      try
+      {
+         $regionsResponse = Http::withHeaders([
+            "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
+         ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/locations");
+         $regions = $regionsResponse->json();
 
-        $osSystemsResponse = Http::withHeaders([
-             "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
-        ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/vm_images/plain_os");
+         $systemsResponse = Http::withHeaders([
+            "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
+         ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/vm_images/plain_os");
 
+         $systems = $systemsResponse->json();
 
+         return  response()->json([
+            "success" => true,
+            "regions" => $regions,
+            "systems" => $systems,
+         ]);
+      }
+      catch(Exception $e)
+      {
+         info("hello bilal");
 
-        $osSystems = $osSystemsResponse->json();
+         info($e);
 
-
-
-
-        return view('idcloudhost_servers.create_idcloudhost_server', compact('regions','osSystems'));
-
-//      /////////////////////////regions////////////////////////////
-//      $ch = curl_init();
-//      curl_setopt($ch, CURLOPT_URL, "https://api.hetzner.cloud/v1/locations");
-//      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//      curl_setopt($ch, CURLOPT_HTTPHEADER, [
-//          'Content-Type: application/json',
-//          'Authorization: Bearer '. $api_key,
-//      ]);
-//      $regions = json_decode(curl_exec($ch), true);
-
-//     $type = $request->query('get');
-//     $api_key = '5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96'; // ضع هنا مفتاح API الخاص بك
-
-    
-//     if ($type === 'locations') {
-//         $url = 'https://api.idcloudhost.com/v1/config/locations';
-//     } elseif ($type === 'vm_images') {
-//         $url = 'https://api.idcloudhost.com/v1/config/vm_images/plain_os';
-//     } else {
-//         return response()->json(['error' => 'Invalid type specified'], 400);
-
- }
+         return  response()->json([
+            "success" => false,
+            "msg" => "Fail - 605",
+         ]);
+      }
+   }
 }
-
