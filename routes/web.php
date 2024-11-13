@@ -93,4 +93,4 @@ require __DIR__.'/auth.php';
 Route::get("/CreateIdCloudHostIndex", [IdCloudHostController::class, "createIdCloudHostIndex"]);
 Route::post("/getRegionsAndSystems", [IdCloudHostController::class, "getRegionsAndSystems"]);
 
-Route::post('storeIdCloudHost','App\Http\Controllers\IdCloudHostController@storeIdCloudHost')->name('create_idcloudhost_server.store');
+Route::post('/storeIdCloudHost',[IdCloudHostController::class, "storeIdCloudHost"]);

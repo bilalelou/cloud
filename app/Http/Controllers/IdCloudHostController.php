@@ -16,9 +16,48 @@ class IdCloudHostController extends Controller
       return view('idcloudhost_servers.create_idcloudhost_server');
    }
 
-   public function storeIdCloudHost()
+   public function storeIdCloudHost(Request $request)
    {
-      
+      // Define the API endpoint and the headers
+      $url = 'https://api.idcloudhost.com/v1/jkt03/user-resource/vm';
+      $apiKey = '5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96';
+
+      $payload = [
+         'name' => "senhaji",
+         // "os_name" =>$request->system["0"]["name"],
+         "os_name" => "centos", // hadi static 7aliyan !!!
+         "os_version" =>$request->system["0"]["version"],
+         'disks' => $request->config["disk"],
+         "vcpu" => $request->config["cpu"],
+         "ram" => $request->config["ram"],
+         // "ram" => 2048, // hadi static 7aliyan !!!
+         // "designated_pool_uuid" => "TODO",
+         "username" => "root",
+         "password" => "dfuhb??fuh!bAAAfvujh188_7487",
+         "billing_account_id" => "1200241687",
+         // "network_uuid" => "TODO",
+         // "cloud_init" => "TODO",
+      ];
+
+      // info($request);
+      // info($request->system);
+      info($payload);
+
+      try
+      {
+         $response = Http::withHeaders([
+            "apikey" => $apiKey
+         ])->withoutVerifying()->post($url, $payload);
+      }
+      catch(Exception $e)
+      {
+         return response()->json([
+            'success' => true,
+            'data' => "Error - API",
+         ]);
+      }      
+
+      info($response);
    }
 
    public function getRegionsAndSystems()
@@ -44,8 +83,6 @@ class IdCloudHostController extends Controller
       }
       catch(Exception $e)
       {
-         info("hello bilal");
-
          info($e);
 
          return  response()->json([
