@@ -94,3 +94,5 @@ Route::get("/CreateIdCloudHostIndex", [IdCloudHostController::class, "createIdCl
 Route::post("/getRegionsAndSystems", [IdCloudHostController::class, "getRegionsAndSystems"]);
 
 Route::post('/storeIdCloudHost',[IdCloudHostController::class, "storeIdCloudHost"]);
+Route::post('/getVmList', [IdCloudHostController::class, 'getVmList']);
+

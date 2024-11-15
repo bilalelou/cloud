@@ -24,8 +24,8 @@ class IdCloudHostController extends Controller
 
       $payload = [
          'name' => "senhaji",
-         // "os_name" =>$request->system["0"]["name"],
-         "os_name" => "centos", // hadi static 7aliyan !!!
+         "os_name" =>$request->system["0"]["name"],
+         // "os_name" => "centos", // hadi static 7aliyan !!!
          "os_version" =>$request->system["0"]["version"],
          'disks' => $request->config["disk"],
          "vcpu" => $request->config["cpu"],
@@ -57,7 +57,6 @@ class IdCloudHostController extends Controller
          ]);
       }      
 
-      info($response);
    }
 
    public function getRegionsAndSystems()
@@ -89,6 +88,46 @@ class IdCloudHostController extends Controller
             "success" => false,
             "msg" => "Fail - 605",
          ]);
+         info($response);
       }
    }
+   public function getVmList(Request $request)
+   {
+      $urls = [
+         "jkt01",
+         "jkt03",
+         "sgp01t",
+         "jkt02",
+     ];
+     
+     $responses = [];
+     foreach ($urls as $url) {
+         try {
+             $VmResponse = Http::withHeaders([
+                 "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
+             ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/{$url}/user-resource/vm/list");
+     
+             $data = $VmResponse->json();
+     
+             info("Processing URL: " . $url);
+             info($data);
+     
+             $responses[] = [
+                 "url" => $url,
+                 "success" => true,
+                 "data" => $data,
+             ];
+         } catch (Exception $e) {
+             info($e->getMessage());
+     
+             $responses[] = [
+                 "url" => $url,
+                 "success" => false,
+                 "msg" => "Fail - 605",
+             ];
+         }
+     }
+     
+     return response()->json($responses);
+}
 }

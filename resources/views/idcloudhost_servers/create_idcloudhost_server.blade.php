@@ -358,10 +358,6 @@
 
         function nextStep() {
 
-
-
-
-
             const data = {
                 "_token": "{{ csrf_token() }}",
                 config: {},
@@ -413,20 +409,54 @@
 
             })
 
-            $.ajax({
-                url: "/storeIdCloudHost",
-                type: "POST",
-                data: data,
-                success: function(response) {
-                    console.log("one");
-                    console.log("Data stored successfully:", response);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error storing data:", error);
-                }
-            });
-        };
-    </script>
+            // $.ajax({
+            //     url: "/storeIdCloudHost",
+            //     type: "POST",
+            //     data: data,
+            //     success: function(response) {
+            //         console.log("one");
+            //         console.log("Data stored successfully:", response);
+            //         toastr.success('successfully!');
 
-    
+            //     },
+            //     error: function(xhr, status, error) {
+            //         console.error("Error storing data:", error);
+            //         toastr.error('An error occurred while storing data.');
+            //     }
+            // });
+            getVmList();
+
+            function getVmList() {
+
+
+                $.ajax({
+                    url: "/getVmList", 
+                    method: "POST", 
+                    data: {
+                        "_token": "{{ csrf_token() }}" 
+                    },
+                    success: function(response) {
+                        console.log("Request successful:", response);
+
+                        if (response && response.success) {
+                            console.log("Data received:", response.data);
+
+                            $('#result').html(`<pre>${JSON.stringify(response.data, null, 2)}</pre>`);
+                        } else {
+                            const errorMessage = response && response.msg ? response.msg :
+                                "Unknown error occurred.";
+                            console.log("Request failed:", errorMessage);
+
+                            $('#result').html("Request failed: " + errorMessage);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", xhr.responseText || error);
+
+                        $('#result').html("An unexpected error occurred: " + (xhr.responseText || error));
+                    }
+                });
+            }
+        }
+    </script>
 @endsection
