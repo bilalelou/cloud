@@ -20,7 +20,7 @@ class IdCloudHostController extends Controller
    {
       // Define the API endpoint and the headers
       $url = 'https://api.idcloudhost.com/v1/jkt03/user-resource/vm';
-      $apiKey = '5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96';
+      $apiKey = 'xcaL575O7OVVIhERPtPz2mcjDZhvnMpn';
 
       $payload = [
          'name' => "senhaji",
@@ -34,7 +34,7 @@ class IdCloudHostController extends Controller
          // "designated_pool_uuid" => "TODO",
          "username" => "root",
          "password" => "dfuhb??fuh!bAAAfvujh188_7487",
-         "billing_account_id" => "1200241687",
+         "billing_account_id" => "1200242373",
          // "network_uuid" => "TODO",
          // "cloud_init" => "TODO",
       ];
@@ -48,6 +48,7 @@ class IdCloudHostController extends Controller
          $response = Http::withHeaders([
             "apikey" => $apiKey
          ])->withoutVerifying()->post($url, $payload);
+         info($response);
       }
       catch(Exception $e)
       {
@@ -64,12 +65,12 @@ class IdCloudHostController extends Controller
       try
       {
          $regionsResponse = Http::withHeaders([
-            "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
+            "apikey" => "xcaL575O7OVVIhERPtPz2mcjDZhvnMpn",
          ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/locations");
          $regions = $regionsResponse->json();
 
          $systemsResponse = Http::withHeaders([
-            "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
+            "apikey" => "xcaL575O7OVVIhERPtPz2mcjDZhvnMpn",
          ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/config/vm_images/plain_os");
 
          $systems = $systemsResponse->json();
@@ -93,41 +94,96 @@ class IdCloudHostController extends Controller
    }
    public function getVmList(Request $request)
    {
-      $urls = [
-         "jkt01",
-         "jkt03",
-         "sgp01t",
-         "jkt02",
-     ];
-     
-     $responses = [];
-     foreach ($urls as $url) {
-         try {
-             $VmResponse = Http::withHeaders([
-                 "apikey" => "5zYeg6RngxrlsTNJtzqp3ta2kdS3Fv96",
-             ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/{$url}/user-resource/vm/list");
-     
-             $data = $VmResponse->json();
-     
-             info("Processing URL: " . $url);
-             info($data);
-     
-             $responses[] = [
-                 "url" => $url,
-                 "success" => true,
-                 "data" => $data,
-             ];
-         } catch (Exception $e) {
-             info($e->getMessage());
-     
-             $responses[] = [
-                 "url" => $url,
-                 "success" => false,
-                 "msg" => "Fail - 605",
-             ];
-         }
-     }
-     
-     return response()->json($responses);
+    $urls = [
+        // "jkt01",
+        "jkt03",
+        // "sgp01t",
+        // "jkt02",
+    ];
+    
+    $allIps = [];
+    $responses = [];
+    
+    foreach ($urls as $url) {
+        $allUuids = [];
+    
+        try {
+            $VmResponse = Http::withHeaders([
+                "apikey" => "xcaL575O7OVVIhERPtPz2mcjDZhvnMpn",
+            ])->withoutVerifying()->get("https://api.idcloudhost.com/v1/{$url}/user-resource/vm/list");
+    
+            $data = $VmResponse->json();
+    
+            if (!is_array($data)) {
+                throw new \Exception("Invalid response structure for URL: {$url}");
+            }
+    
+            foreach ($data as $item) {
+                if (isset($item['uuid'])) {
+                    $allUuids[] = $item['uuid'];
+                }
+            }
+    
+            info("Extracted UUIDs from URL: {$url}, UUIDs: " . implode(", ", $allUuids));
+    
+            $responsesIps = [];
+            foreach ($allUuids as $uuid) {
+                try {
+                    $apiResponse = Http::withHeaders([
+                        "apikey" => "xcaL575O7OVVIhERPtPz2mcjDZhvnMpn",
+                    ])->withoutVerifying()->post("https://api.idcloudhost.com/v1/{$url}/user-resource/vm/ip/public", [
+                        "uuid" => $uuid,
+                    ]);
+    
+                    $ipData = $apiResponse->json();
+    
+                    $responsesIps[] = [
+                        "uuid" => $uuid,
+                        "data" => $ipData,
+                        "success" => true,
+                    ];
+    
+                    if (isset($ipData['public_ipv4'])) {
+                        $allIps[] = $ipData['public_ipv4'];
+                    }
+    
+                    info("Processed UUID {$uuid}, IP: " . ($ipData['public_ipv4'] ?? 'N/A'));
+                } catch (\Exception $e) {
+                    $responsesIps[] = [
+                        "uuid" => $uuid,
+                        "success" => false,
+                        "error" => $e->getMessage(),
+                    ];
+    
+                    info("Error processing UUID: {$uuid}, Error: " . $e->getMessage());
+                }
+            }
+    
+            $responses[] = [
+                "url" => $url,
+                "success" => true,
+                "data" => $data,
+                "responsesIps" => $responsesIps,
+            ];
+        } catch (\Exception $e) {
+            info("Error processing URL: {$url}, Error: " . $e->getMessage());
+    
+            $responses[] = [
+                "url" => $url,
+                "success" => false,
+                "msg" => $e->getMessage(),
+            ];
+        }
+    }
+    
+
+    return response()->json([
+        "success" => true,
+        "responses" => $responses,
+        "allIps" => $allIps, 
+    ]);
+
 }
 }
+
+
