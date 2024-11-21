@@ -92,7 +92,9 @@ require __DIR__.'/auth.php';
 
 Route::get("/CreateIdCloudHostIndex", [IdCloudHostController::class, "createIdCloudHostIndex"]);
 Route::post("/getRegionsAndSystems", [IdCloudHostController::class, "getRegionsAndSystems"]);
-
 Route::post('/storeIdCloudHost',[IdCloudHostController::class, "storeIdCloudHost"]);
 Route::post('/getVmList', [IdCloudHostController::class, 'getVmList']);
+Route::post('/storeServers', [IdCloudHostController::class, 'storeServers']);
+
+
 
