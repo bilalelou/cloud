@@ -79,11 +79,11 @@
                 <div class="card-footer d-flex justify-content-between">
                     <div id="pmta_settings" class="d-flex justify-content-start align-items-center" style="gap: 10px;opacity: 0;">
                         <label class="custom-control custom-radio">
-                            <input type="radio" class="custom-control-input" id="pmta_4.5" name="pmta" value="pmta4_0" checked>
+                            <input type="radio" class="custom-control-input" id="pmta_4.5" name="pmta" value="pmta4_06" checked>
                             <span class="custom-control-label">PMTA 4.0</span>
                         </label>
                         <label class="custom-control custom-radio">
-                            <input type="radio" class="custom-control-input" id="pmta_4.0" name="pmta" value="pmta4_5">
+                            <input type="radio" class="custom-control-input" id="pmta_4.0" name="pmta" value="pmta4_06">
                             <span class="custom-control-label">PMTA 4.5</span>
                         </label>
                     </div>
@@ -546,14 +546,17 @@
             data: data,
             success: function(response)
             {
-                var results = response.results;
-                for(i = 0; i < results.length; i++)
+                toastr.options.timeOut = 5000;
+
+                if(response.success)
                 {
-                    toastr.options.timeOut = 5000;
-                    if(results[i]["msg"].includes("successfully")) toastr.success(results[i]["msg"]);
-                    else toastr.error(results[i]["msg"]);
+                    toastr.success(response.msg);
                 }
-                
+                else
+                {
+                    toastr.error(response.msg);
+                }
+
                 $('#get_geos_card').waitMe('hide');
             }
         })

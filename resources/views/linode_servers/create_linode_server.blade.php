@@ -27,11 +27,11 @@
                             <div class="card-footer d-flex justify-content-between">
                                 <div id="pmta_settings" class="d-flex justify-content-start align-items-center" style="gap: 10px;opacity: 0;align-self: end;">
                                     <label class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="pmta_4.5" name="pmta" value="pmta4_0" checked>
+                                        <input type="radio" class="custom-control-input" id="pmta_4.5" name="pmta" value="pmta4_06" checked>
                                         <span class="custom-control-label">PMTA 4.0</span>
                                     </label>
                                     <label class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="pmta_4.0" name="pmta" value="pmta4_5">
+                                        <input type="radio" class="custom-control-input" id="pmta_4.0" name="pmta" value="pmta4_06">
                                         <span class="custom-control-label">PMTA 4.5</span>
                                     </label>
                                 </div>
@@ -39,7 +39,7 @@
                                     <button class="btn btn-info" id="save_button" onclick="checkFilledRows()">Create</button>
                                     <button class="btn btn-info" style="display: none;" id="store_button" onclick="storeServers()">Store</button>
                                     <button id="check_spamhaus" class="btn btn-warning card-options" style="display: none" onclick="checkSpamhaus()">Check Spamhaus</button>
-                                    <button class="btn btn-info" style="display: none;" id="reinstall_button" onclick="reinstallServers()">Reinstall Server(s)</button>
+                                    <button class="btn btn-info" style="display: none;" id="reinstall_button" onclick="reinstallServers()">Install Server(s)</button>
                                     <input type="hidden" id="reinstall_servers_ids">
                                 </div>
                             </div>
@@ -47,6 +47,16 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="card col-12 p-0">
+            <div class="card-header">
+                <div class="card-title">Failed Linodes Logs</div>
+            </div>
+            <div class="card-body">
+                <textarea id="failed_linodes_logs" rows="10" class="form-control w-100" disabled></textarea>
+            </div>
+            {{-- <div class="card-footer"> </div> --}}
         </div>
     </div>
 </div>
@@ -322,22 +332,21 @@
 
     function createLinode(filledRowsData)
     {
-        var data = {
-            "_token": "{{ csrf_token() }}",
-            "filledRowsData": filledRowsData
-        };
-
         $.ajax({
             url: "/createLinode",
             method: "POST",
-            data: data,
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "filledRowsData": filledRowsData
+            },
             success: function(response)
             {
+                $('#droplet_settings_card').waitMe('hide');
+                toastr.options.timeOut = 5000;
+
                 if(response.success)
                 {
-                    toastr.options.timeOut = 5000;
                     toastr.success(response.linodeIds.length + " " + response.message);
-                    $('#droplet_settings_card').waitMe('hide');
 
                     $("#get_geos").css("display", "none");
                     $("#save_button").css('display', 'none');
@@ -347,9 +356,9 @@
                     $('#droplet_settings').html('');
                     var installedServers = `<div class="col-12">
                                                 <ul>`;
-                    for(let i = 0; i < response.servers.length; i++)
+                    for(let i = 0; i<response.servers.length; i++)
                     {
-                        installedServers +=         `<li style="${i < response.servers.length - 1 ? "margin-bottom: 7px;" : ""}">
+                        installedServers +=         `<li style="${i < response.servers.length - 1 ? "margin-bottom: 7px;margin-top: 21px;" : ""}">
                                                         <div class="col-12" style="display: flex;justify-content: space-between;align-items: center;padding: 15px;border-radius: 5px; border: 1px solid #0069ff;">
                                                             <div>
                                                                 <i class="fa fa-tint" style="color: #2dce89; margin-right: 5px;" aria-hidden="true"></i>
@@ -368,12 +377,19 @@
 
                     $('#droplet_settings').append(installedServers);
                     $('#reinstall_servers_ids').val(response.linodeIds);
+
+                    let failed_linodes_logs = "";
+
+                    for(let i = 0; i<response.failed_linodes.length; i++)
+                    {
+                        failed_linodes_logs += "❌ " + response.failed_linodes[i]["region"] + " - " + response.failed_linodes[i]["image"] + ". ❌ - Reason: " + response.failed_linodes[i]["reason"] + "\n\n";
+                    }
+
+                    $("#failed_linodes_logs").val(failed_linodes_logs);
                 }
                 else
                 {
-                    toastr.options.timeOut = 5000;
                     toastr.error(response.message);
-                    $('#droplet_settings_card').waitMe('hide');
                 }
             },
             error: function(xhr)
@@ -418,7 +434,7 @@
                     // $('#reinstall_servers_ids').val(response.linodeIds);
                     $("#store_button").css("display", "block");
                     $('#droplet_settings').html('');
-                    var installedServers = `<div class="col-12">
+                    var installedServers = `<div class="col-12" style="margin-bottom: 7px;">
                                                 <ul>`;
                     for(let i = 0; i < response.servers.length; i++)
                     {
@@ -431,7 +447,7 @@
                                                             <span style="font-size: 12px;">${response.servers[i]["main_ip"]}</span>
                                                             <span style="font-size: 12px;" class="${response.servers[i]["spamhaus"] == false ? "badge badge-success" : "badge badge-danger"}">${response.servers[i]["spamhaus"] == false ? "Clean" : "Spamhaus"}</span>
                                                         </div>
-                                                    </li>`;  
+                                                    </li>`;
                     }
 
                     installedServers += `       </ul>
@@ -448,7 +464,6 @@
                 }
             }
         })
-
     }
 
     function storeServers()
@@ -531,80 +546,11 @@
         })
     }
 
-    // function getLinodeStatus(linodeIds)
-    // {
-    //     $('#droplet_settings_card').waitMe({
-    //         effect: 'progressBar',
-    //         text: "Please don't refresh, we are setting up your servers...",
-    //         bg: 'rgba(255,255,255,0.7)',
-    //         color: '#5b7fff',
-    //         maxSize: '',
-    //         waitTime: -1,
-    //         source: '',
-    //         textPos: 'vertical',
-    //         fontSize: '30px',
-    //     });
-
-    //     var data = {
-    //         "_token": "{{ csrf_token() }}",
-    //         "linodeIds": linodeIds,
-    //     };
-
-    //     $.ajax({
-    //         url: "{{url('/getLinodeStatus')}}",
-    //         method: "POST",
-    //         data: data,
-    //         success: function(response)
-    //         {
-    //             if(response.success)
-    //             {
-    //                 toastr.options.timeOut = 5000;
-    //                 toastr.success(response.message);
-    //                 $('#droplet_settings_card').waitMe('hide');
-                    
-    //                 $('#reinstall_servers_ids').val(response.linodeIds);
-    //                 $('#save_button').css("display", "none");
-    //                 $('#reinstall_button').css("display", "block");
-
-    //                 $('#droplet_settings').html('');
-    //                 var installedServers = `<div class="col-12">
-    //                                             <ul>`;
-    //                 for(let i = 0; i < response.servers.length; i++)
-    //                 {
-    //                     installedServers +=         `<li style="${i < response.servers.length - 1 ? "margin-bottom: 7px;" : ""}">
-    //                                                     <div class="col-12" style="display: flex;justify-content: space-between;align-items: center;padding: 15px;border-radius: 5px; border: 1px solid #0069ff;">
-    //                                                         <div>
-    //                                                             <i class="fa fa-linode" style="color: #2dce89; margin-right: 5px;" aria-hidden="true"></i>
-    //                                                             <span style="font-size: 13px;color: #0069ff; font-weight: 600;">${response.servers[i]["name"]}</span>
-    //                                                         </div>
-    //                                                         <span style="font-size: 12px;">${response.servers[i]["main_ip"]}</span>
-    //                                                         <span style="font-size: 12px;">${response.servers[i]["os_installed"]}</span>
-    //                                                         <span style="font-size: 12px;" class="${response.servers[i]["status"] == "saved" ? "badge badge-success" : "bg-red"}">${response.servers[i]["status"]}</span>
-    //                                                     </div>
-    //                                                 </li>`;  
-    //                 }
-
-    //                 installedServers += `       </ul>
-    //                                         </div>
-    //                                         `;
-
-    //                 $('#droplet_settings').append(installedServers);
-    //                 $('#pmta_settings').css("opacity", "1");
-    //             }
-    //             else
-    //             {
-    //                 toastr.options.timeOut = 5000;
-    //                 toastr.error("Error");
-    //             }
-    //         }
-    //     });
-    // }
-
     function reinstallServers()
     {
         $('#droplet_settings_card').waitMe({
             effect: 'progressBar',
-            text: "Please wait, we are reinstalling your servers...",
+            text: "The servers are being installed, this could take from 10-15 minutes...",
             bg: 'rgba(255,255,255,0.7)',
             color: '#5b7fff',
             maxSize: '',
@@ -630,12 +576,15 @@
             data: data,
             success: function(response)
             {
-                var results = response.results;
-                for(i = 0; i < results.length; i++)
+                toastr.options.timeOut = 5000;
+
+                if(response.success)
                 {
-                    toastr.options.timeOut = 5000;
-                    if(results[i]["msg"].includes("successfully")) toastr.success(results[i]["msg"]);
-                    else toastr.error(results[i]["msg"]);
+                    toastr.success(response.msg);
+                }
+                else
+                {
+                    toastr.error(response.msg);
                 }
 
                 $('#droplet_settings_card').waitMe('hide');

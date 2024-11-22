@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Controllers\IdCloudHostController;
+use App\Http\Controllers\testDomainController;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\IdCloudHostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,11 +91,10 @@ require __DIR__.'/auth.php';
 /////////////////////////////////idcloudhost/////////////////////////////////////
 
 
-Route::get("/CreateIdCloudHostIndex", [IdCloudHostController::class, "createIdCloudHostIndex"]);
+Route::get("/createIdCloudHostIndex", [IdCloudHostController::class, "createIdCloudHostIndex"]);
 Route::post("/getRegionsAndSystems", [IdCloudHostController::class, "getRegionsAndSystems"]);
 Route::post('/storeIdCloudHost',[IdCloudHostController::class, "storeIdCloudHost"]);
 Route::post('/getVmList', [IdCloudHostController::class, 'getVmList']);
 Route::post('/storeServers', [IdCloudHostController::class, 'storeServers']);
 
-
-
+Route::get('/test-user-function', [testDomainController::class, 'testFunction']);

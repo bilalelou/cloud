@@ -162,6 +162,9 @@ class CloudServersController extends Controller
                     $server->ssh_key_content = null;
                     $server->ssh_port = 22;
 
+                    $server->type = "cloud";
+                    $server->Installation_method = "lite";    
+
                     $server->save();
 
                     array_push($servers_id, $server->id);
@@ -192,9 +195,9 @@ class CloudServersController extends Controller
                 $server = DeliveryServer::find($server_id);
                 $provider = $server->serverprovider;
                 $api_key = $provider->cloud_api_key;
-                
+
                 $droplet_url = "https://api.digitalocean.com/v2/droplets/".$server->cloud_id;
-                
+
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $droplet_url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -205,8 +208,7 @@ class CloudServersController extends Controller
                 
                 $response = curl_exec($ch);
                 $result = json_decode($response, true);
-                
-                
+
                 if(array_key_exists("id", $result)) continue;
                 
                 if($result["droplet"]["status"] == "active" && !in_array($server_id, $success_droplets)) 
@@ -235,7 +237,7 @@ class CloudServersController extends Controller
     function deleteServers(Request $request)
     {
         if(auth()->user()->cannot("delete_cloud_server")) abort(403);
-        
+
         $servers_id = explode(",", $request->servers_id);
 
         try
@@ -254,14 +256,17 @@ class CloudServersController extends Controller
                         $url = "https://api.digitalocean.com/v2/droplets/" . $server->cloud_id;
                         $token = $provider->cloud_api_key; 
                         break;
+
                     case "linode":
                         $url = "https://api.linode.com/v4/linode/instances/" . $server->cloud_id;
                         $token = $provider->cloud_api_key; 
                         break;
+
                     case "hetzner":
                         $url = "https://api.hetzner.cloud/v1/servers/" . $server->cloud_id;
                         $token = $provider->cloud_api_key;
                         break;
+
                     case "kamatera":
                         $url = "https://console.kamatera.com/service/server/{$server->cloud_id}/terminate";
                         $token = KamateraController::authenticate();
@@ -271,28 +276,31 @@ class CloudServersController extends Controller
                             'Authorization' => 'Bearer ' . $token,
                         ])->put("https://console.kamatera.com/service/server/{$server->cloud_id}/power", ["power" => "off"]);
                         break;
+
                     case "azure":
                         $o_auth = json_decode($provider->o_auth, true);
                         $token = DeliveryServer::generateAccessToken($o_auth["client_id"], $o_auth["client_secret"], $o_auth["tenant_id"]);
                         $subscriptionId = json_decode($server->vm_info, true)["subscription_id"];
                         $resourceGroupName = json_decode($server->vm_info, true)["resource_group_name"];
-                        $url = "https://management.azure.com/subscriptions/".$subscriptionId."/resourcegroups/".$resourceGroupName."?api-version=2021-04-01";
+                        $url = "https://management.azure.com/subscriptions/" . $subscriptionId . "/resourcegroups/" . $resourceGroupName . "?api-version=2021-04-01";
                         break;
                 }
-                
+
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer '. $token,
                 ])->delete($url, $arr);
 
-                if ($response->successful()) 
+                if($response->successful()) 
                 {
                     $server->status = "returned";
                     $server->save();
                 } 
                 else 
                 {
-                    return response()->json(['success' => false, 'msg' => 'Failed to delete server']);
+                    // return response()->json(['success' => false, 'msg' => 'Failed to delete server']);
+
+                    // in the future whould we add more tests heere ?
                 }
             }
         }
@@ -307,29 +315,24 @@ class CloudServersController extends Controller
 
     function reinstallServers(Request $request)
     {
-        set_time_limit(380);
-
         $server_ids = explode(",", $request->servers_ids);
-        
         $results = Http::post("deliverability." . env('domain2') . "/api/rienstallServerApi", [
-            'id' => $server_ids,
-            'pmta' => $request->pmta,
+            "id" => $server_ids,
+            "pmta" => $request->pmta,
             "recordVersion" => "off"
         ]);
-        
+
         $results = json_decode($results, true);
-        
-        foreach($results as $result)
+
+        $results_success = $results["success"] ?? false;
+
+        if($results_success)
         {
-            if(!str_contains($result["msg"], "reinstalled successfully"))
-            {
-                $server = DeliveryServer::find($result["id"]);
-                $server->status = "inactive";
-                $server->save();
-            }
+            return response()->json(["success" => true, "msg" => "Installation finished successfully"]);
         }
-
-        return response()->json(["success" => true, "results" => $results]);
+        else
+        {
+            return response()->json(["success" => false, "msg" => "An error has occurred during installation"]);
+        }
     }
-
 }

@@ -26,14 +26,17 @@
         <link href="{{ asset('assets/plugins/select2/select2.min.css') }}" rel="stylesheet" />
         <link id="theme" href="{{ asset('assets/colors/color1.css') }}" rel="stylesheet" type="text/css"/>
         <link href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css" rel="stylesheet" type="text/css">{{-- css for select cloud table makhdamch --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     </head>
 
     <body class="app main-body">
 
-        <div id="global-loader" >
+        <!-- <div id="global-loader" >
             <img src="{{ asset('assets/images/svgs/loader.svg') }}" alt="loader">
-        </div>
+        </div> -->
 
         <div class="page">
             <div class="page-main">
@@ -299,6 +302,39 @@
                                                 Logs
                                             </a>
                                         </li>
+                                    @endcan
+                                    @canany(['create_digitalocean_server', 'create_linode_server', 'create_hetzner_server','create_azure_server','create_kamatera_server'])
+                                    <li aria-haspopup="true">
+                                      
+                                        <a href="#" class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <svg class="hor-icon" height="24" viewBox="0 0 24 24" width="24">
+                                                <path d="M0 0h24v24H0V0z" fill="none"/>
+                                                <path d="M16.66 4.52l2.83 2.83-2.83 2.83-2.83-2.83 2.83-2.83M9 5v4H5V5h4m10 10v4h-4v-4h4M9 15v4H5v-4h4m7.66-13.31L11 7.34 16.66 13l5.66-5.66-5.66-5.65zM11 3H3v8h8V3zm10 10h-8v8h8v-8zm-10 0H3v8h8v-8z"/>
+                                            </svg>
+                                            New Servers
+                                        </a>
+                                        <div class="dropdown-menu">
+                                            @can('create_digitalocean_server')
+                                                <a class="dropdown-item" href="/CreateCloudServersIndex">New Digital Ocean Server</a>
+                                            @endcan
+                                            @can('create_linode_server')
+                                                <a class="dropdown-item" href="/CreateLinodeServersIndex">New Linode Server</a>
+                                            @endcan
+                                            @can('create_hetzner_server')
+                                                <a class="dropdown-item" href="/CreateHetznerServersIndex">New Hetzner Server</a>
+                                            @endcan
+                                            @can('create_azure_server')
+                                                <a class="dropdown-item" href="/CreateAzureVMsIndex">New Azure VM</a>
+                                            @endcan
+                                            @can('create_kamatera_server')
+                                                <a class="dropdown-item" href="/CreateKamateraServersIndex">New Kamatera Server</a>
+                                            @endcan
+                                            @can('create_idcloudhost_server') 
+                                                <a class="dropdown-item" href="/createIdCloudHostIndex">New IdCloudHost Server</a>
+                                            @endcan 
+                                        </div>
+                                        
+                                    </li>
                                     @endcan
                                 </ul>
                             </nav>

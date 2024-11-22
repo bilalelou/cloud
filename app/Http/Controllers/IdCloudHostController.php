@@ -7,9 +7,8 @@ use Illuminate\Support\Facades\Http;
 use Spatie\Valuestore\Valuestore;
 use App\Models\TempDeliveryServer;
 use App\Models\DeliveryServer;
-
-
-
+use App\Models\ServerProvider;
+use Illuminate\Support\Facades\DB;
 
 class IdCloudHostController extends Controller
 {
@@ -24,6 +23,8 @@ class IdCloudHostController extends Controller
         // Define the API endpoint and the headers
         $url = 'https://api.idcloudhost.com/v1/jkt01/user-resource/vm';
         $apiKey = 'xcaL575O7OVVIhERPtPz2mcjDZhvnMpn';
+        $password = DB::table('app_settings')->value('default_password');
+
 
         $payload = [
             'name' => "senhaji",
@@ -36,7 +37,7 @@ class IdCloudHostController extends Controller
             // "ram" => 2048, // hadi static 7aliyan !!!
             // "designated_pool_uuid" => "TODO",
             "username" => "root",
-            "password" => "dfuhb??fuh!bAAAfvujh188_7487",
+            "password" => $password,
             "billing_account_id" => "1200242373",
             // "network_uuid" => "TODO",
             // "cloud_init" => "TODO",
@@ -65,6 +66,8 @@ class IdCloudHostController extends Controller
 
     public function getRegionsAndSystems()
     {
+        $providers =ServerProvider::All();
+
         try
         {
             $regionsResponse = Http::withHeaders([
@@ -82,6 +85,7 @@ class IdCloudHostController extends Controller
                 "success" => true,
                 "regions" => $regions,
                 "systems" => $systems,
+                "providers"=> $providers,
             ]);
         }
         catch(Exception $e)
@@ -92,12 +96,13 @@ class IdCloudHostController extends Controller
                 "success" => false,
                 "msg" => "Fail - 605",
             ]);
-            info($response);
         }
     }
 
     public function getVmList(Request $request)
     {
+        info($request);
+
         $urls = [
             "jkt01",
             "jkt03",
@@ -128,6 +133,12 @@ class IdCloudHostController extends Controller
 
                     foreach ($responseData as $key => $data)
                     {
+                        info($data);
+                        return;
+                        $provider = ServerProvider::find($data->serverprovider_id);
+                        $rand = rand(0, 9999) . rand(0, 9999);
+                        $label = $provider->name . '-' . $rand;
+
                         $infoVm = [
                             'os' => $data['os_name'] . " " . $data['os_version'],
                             'status' => $data['status'] === 'running' ? 'active' : 'inactive',
@@ -151,7 +162,7 @@ class IdCloudHostController extends Controller
             }
             catch (\Exception $e)
             {
-                info("Error processing URL: {$url}, Message: " . $e->getMessage());
+                info($e);
 
                 continue;
             }
@@ -166,31 +177,61 @@ class IdCloudHostController extends Controller
         ]);
     }
 
-    public function storeServers(Request $request){
-        $servers = TempDeliveryServer::find(explode(",", $request->ids));
+    public function storeServers(Request $request)
+    {
+        $stored_clean = [];
+        $servers = TempDeliveryServer::all();
+        info("now this");
+        info("two this");
+        info($servers);
+        $password = DB::table('app_settings')->value('default_password');
 
-        $IdClousHost = new DeliveryServer();
-        $IdClousHost->serverprovider_id = $provider->id;
-        $IdClousHost->name = $response['label'];
-        $IdClousHost->main_ip = $response['ipv4'][0];
-        $IdClousHost->cloud_id = $response['id'];
-        $IdClousHost->ssh_auth_type = "plain_password";
-        $IdClousHost->interval = "both";
-        $IdClousHost->is_proxy = false;
-        $IdClousHost->type = $response['type'];
-        $IdClousHost->geo = $response['region'];
-        $IdClousHost->main_domain = DeliveryServer::generateRandomDomain();
-        $IdClousHost->os_installed = "";
-        $IdClousHost->status = "saved";
-        $IdClousHost->ssh_user = "root";
-        $IdClousHost->ssh_password = $password;
-        $IdClousHost->ssh_key_content = null;
-        $IdClousHost->ssh_port = 22;
-        $IdClousHost->type = "cloud";
-        $IdClousHost->Installation_method = "lite";
-        $IdClousHost->save();
+        foreach ($servers as $server) {
+            $provider = ServerProvider::find($server->serverprovider_id);
+            
 
+            info($provider);
+            info($server);
 
+            if (!$provider) {
+                continue; 
+            }
+            info($server);
+    
+            $response = []; 
+    
+            $IdClousHost = new DeliveryServer();
+            $IdClousHost->serverprovider_id = $provider->id;
+            $IdClousHost->name = $server->name ?? 'Default Name';
+            $IdClousHost->main_ip = $server->main_ip ?? '0.0.0.0';
+            $IdClousHost->cloud_id = $server->id ?? 0;
+            $IdClousHost->ssh_auth_type = "plain_password";
+            $IdClousHost->interval = "both";
+            $IdClousHost->is_proxy = false;
+            $IdClousHost->type = "cloud";
+            $IdClousHost->geo = ""; //todo
+            $IdClousHost->main_domain = DeliveryServer::generateRandomDomain();
+            $IdClousHost->os_installed = $server->os_installed;
+            $IdClousHost->status = "saved";
+            $IdClousHost->ssh_user = "root";
+            $IdClousHost->ssh_password = $password;//todo
+            $IdClousHost->ssh_key_content = null;
+            $IdClousHost->ssh_port = 22;
+            $IdClousHost->Installation_method = "lite";
+            $IdClousHost->save();
+    
+            $stored_clean[] = $IdClousHost->id;
+            $server->delete(); 
+    
+            info("Server processed and saved: " . $IdClousHost->id);
+        }
+    
+        return response()->json([
+            "success" => true,
+            "message" => "Servers created successfully",
+            "IdClousHostid" => $stored_clean,
+
+        ]);
     }
 }
 

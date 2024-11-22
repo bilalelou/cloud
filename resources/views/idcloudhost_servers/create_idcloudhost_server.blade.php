@@ -1,16 +1,9 @@
 @extends('layouts.layout')
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
-    <link href="{{ asset('assets/css/ion.rangeSlider.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/waitMe.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/waitme@1.19.0/waitMe.min.css">
-
     <link href="{{ asset('assets/css/ion.rangeSlider.skinFlat.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
-
-
-
-
 
     <style>
         #systemContainer {
@@ -73,6 +66,31 @@
         .checked {
             border: #075985 solid 2px;
         }
+
+        .provider-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+            margin-bottom: 10px;
+
+        }
+
+        .label-container {
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .select-container {
+            flex-grow: 2;
+        }
+
+        .provider-select {
+            width: 300px;
+            max-width: 100%;
+            padding: 5px;
+            font-size: 16px;
+        }
     </style>
 
     <div class="hor-content main-content">
@@ -94,6 +112,12 @@
                             <div id="droplet_settings_card" style="display:none ;padding: 0px !important;">
                                 <div class="card-body" style="padding: 0px !important;">
                                     <div id="droplet_settings">
+                                        <div class="w-full max-w-5xl text-center mx-auto">
+                                            <h2 class="card-title">Select Account</h2>
+                                            <div id="Account-provider"
+                                                class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8 justify-center items-center">
+                                            </div>
+                                        </div>
                                         <div class="w-full max-w-5xl text-center mx-auto">
                                             <h2 class="card-title">Select Your Region</h2>
                                             <div id="regions-container"
@@ -210,29 +234,28 @@
                                             </div>
                                         </div> --}}
                                     </div>
-                                   
+
                                 </div>
                             </div>
 
                             <div class="card-footer d-flex justify-content-between"style="display:none;">
-                                <div id="pmta_settings"
-                                    class="d-flex justify-content-start align-items-center"
+                                <div id="pmta_settings" class="d-flex justify-content-start align-items-center"
                                     style="gap: 10px;opacity: 0;align-self: end;">
                                     <label class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="pmta_4.5"
-                                            name="pmta" value="pmta4_0" checked>
+                                        <input type="radio" class="custom-control-input" id="pmta_4.5" name="pmta"
+                                            value="pmta4_0" checked>
                                         <span class="custom-control-label">PMTA 4.0</span>
                                     </label>
                                     <label class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="pmta_4.0"
-                                            name="pmta" value="pmta4_5">
+                                        <input type="radio" class="custom-control-input" id="pmta_4.0" name="pmta"
+                                            value="pmta4_5">
                                         <span class="custom-control-label">PMTA 4.5</span>
                                     </label>
                                 </div>
                                 <div class="d-flex justify-content-end" style="gap: 10px display:none;">
                                     <button class="btn btn-info" id="save_button" style ="display:none;"
                                         onclick="checkFilledRows()">Create</button>
-                                    
+
                                     <button class="btn btn-info" style="display: none;" id="store_button"
                                         onclick="storeServers()">Store</button>
                                     <button id="check_spamhaus" class="btn btn-warning card-options"
@@ -244,30 +267,20 @@
                                 </div>
                             </div>
                             <div id="serverCreate" style="display: ">
-                                
-                             </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
-
-
-
-            <script src="{{ asset('assets/js/rangeslider.js') }}"></script>
-            <script src="{{ asset('assets/js/ion.rangeSlider.min.js') }}"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/waitme@1.19.0/waitMe.min.js"></script>
-
             <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
             <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
 
             <script>
                 function getOptions() {
-
                     $(document).ready(function() {
                         $('#get_geos_card').waitMe({
                             effect: 'timer',
@@ -290,13 +303,48 @@
                         },
                         success: function(response) {
                             if (response.success) {
+
                                 showRegionsAndSystems(response);
                                 $('#get_geos_card').waitMe('hide');
                                 $("#get_geos").hide();
                                 toastr.success("good");
                                 displayCreateAndList();
 
+
                                 function showRegionsAndSystems(data) {
+                                    const emailProvider = document.getElementById('Account-provider');
+
+                                    emailProvider.innerHTML = "";
+
+                                    const providerRow = document.createElement("div");
+                                    providerRow.className = "provider-row";
+
+                                    const labelDiv = document.createElement("label");
+                                    labelDiv.className = "label-container";
+                                    labelDiv.textContent = "Select Email Provider:";
+                                    labelDiv.htmlFor = "email-provider-select";
+
+                                    const selectDiv = document.createElement("div");
+                                    selectDiv.className = "select-container";
+
+                                    const selectEmail = document.createElement("select");
+                                    selectEmail.className = "form-control provider-select";
+                                    selectEmail.id = "email-provider-select";
+                                    selectEmail.innerHTML = `
+                                                        <option value="" disabled selected>Select Provider</option>
+                                                    `;
+                                    data.providers.forEach(provider => {
+                                        selectEmail.innerHTML += `
+                                        <option value="${provider.id}">${provider.name} - ${provider.cloud_email}</option>
+                                    `;
+                                    });
+
+                                    selectDiv.appendChild(selectEmail);
+                                    providerRow.appendChild(labelDiv);
+                                    providerRow.appendChild(selectDiv);
+                                    emailProvider.appendChild(providerRow);
+
+                                    ////////////end provider//////////////
                                     const container = document.getElementById('regions-container');
                                     container.innerHTML = "";
                                     const systemContainer = document.getElementById("os-container");
@@ -309,9 +357,9 @@
                                         const regionElement = document.createElement('div');
                                         regionElement.className = "flag-container";
                                         regionElement.innerHTML = `
-                    <span class="flag-icon flag-icon-${countryCode}"></span>
-                    <p class="text-gray-800 font-semibold text-lg text-center">${region.display_name}</p>
-                `;
+                                                            <span class="flag-icon flag-icon-${countryCode}"></span>
+                                                            <p class="text-gray-800 font-semibold text-lg text-center">${region.display_name}</p>
+                                                        `;
 
                                         container.appendChild(regionElement);
                                     });
@@ -415,14 +463,7 @@
                         }
                     });
                 }
-            </script>
 
-            <script></script>
-
-
-
-
-            <script>
                 function updateValue(slider, display, hiddenInput) {
                     slider.addEventListener('input', function() {
                         document.getElementById(display).textContent = this.value;
@@ -435,18 +476,13 @@
                 updateValue(document.getElementById('disk-input'), 'disk-value', 'disk-hidden');
                 updateValue(document.getElementById('numserver-input'), 'numserver-value', 'numserver-hidden');
 
-
-
-
-
-
-
                 function createVm() {
                     const data = {
                         "_token": "{{ csrf_token() }}",
                         config: {},
                         regions: [],
-                        system: []
+                        system: [],
+                        account: {},
                     };
 
                     const diskInput = document.getElementById('disk-input');
@@ -458,6 +494,10 @@
                     data.config.disk = diskInput ? diskInput.value : null;
                     data.config.ram = ramInput && ramInput.value ? ramInput.value * 1024 : null;
                     data.config.numServers = numServerInput ? numServerInput.value : null;
+                    const selectEmail = document.getElementById('selectEmail');
+                    const selectedValue = selectEmail.value;
+                    data.account.emailproviderid = selectedValue;
+                 
 
 
                     const checkedRegions = document.querySelectorAll('.flag-container.checked');
@@ -502,71 +542,69 @@
                 }
 
                 function getVmList() {
-                                $.ajax({
-                                    url: "/getVmList",
-                                    method: "POST",
-                                    data: {
-                                        "_token": "{{ csrf_token() }}"
-                                    },
-                                    success: function(response) {
+                    $.ajax({
+                        url: "/getVmList",
+                        method: "POST",
+                        data: {
+                            "_token": "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            toastr.success("good");
 
-                                        console.log(response);             
-                                            const listServer = document.getElementById("serverCreate");
-                                            listServer.innerHTML = ""; 
-                                            console.log("thosfds");  
-                                            const table = document.createElement("table");
-                                            table.className = "table text-nowrap";
-                                            console.log("thdsfsdffosfds"); 
-                                            const headerRow = document.createElement("tr");
-                                            headerRow.innerHTML = `
-                                                <th>Provider</th>
-                                                <th>Name Server</th>
-                                                <th>Status</th>
-                                                <th>IP Address</th>
-                                                <th>OS System</th>
-                                                <th>Action</th>
-                                            `;
-                                            table.appendChild(headerRow);
-                                            console.log("ghddfghhgfghdh"); 
-                                            if (true) {     
-                                                response.servers.forEach(server => {
-                                                    const row = document.createElement("tr");
-                                                    row.innerHTML = `
-                                                        <td>${server.provider || "IdCloudHost"}</td>
-                                                        <td>${server.name || "N/A"}</td>
-                                                        <td><span style="font-size: 12px;" class="${server.status === 'saved' ? 'badge badge-success' : 'bg-red'}">
-                                                        ${server.status || "N/A"}</span></td>
-                                                        <td>${server.main_ip || "N/A"}</td>
-                                                        <td>${server.os_installed || "N/A"}</td>
-                                                        <td>
-                                                            <button class="btn btn-primary" onclick="manageServer('${server.id}')">
-                                                                Manage
-                                                            </button>
-                                                        </td>
-                                                    `;
-                                                    table.appendChild(row);
-                                                    $('#get_geos_card').waitMe('hide');
-                                                });
-                                            } else {
-                                                const noDataRow = document.createElement("tr");
-                                                noDataRow.innerHTML = `<td colspan="6" class="text-center">No servers found</td>`;
-                                                table.appendChild(noDataRow);
-                                            }
+                            $('#get_geos_card').waitMe('hide');
 
-                                            listServer.appendChild(table); 
-                                            $("#save_button").css("display", "none");
-                                            $('#store_button').css("display", "block");
+                            const listServer = document.getElementById("serverCreate");
+                            listServer.innerHTML = "";
 
+                            const table = document.createElement("table");
+                            table.className = "table text-nowrap";
 
-                                        
-                                    },
-                                    error: function(xhr, status, error) {
-                                        console.error("AJAX error:", xhr.responseText || error);
-                                        $('#serverCreate').html("<p class='text-center text-danger'>An unexpected error occurred: " + (xhr.responseText || error) + "</p>");
-                                    }
-                                });
-                            }
-                           
+                            const headerRow = document.createElement("tr");
+                            headerRow.innerHTML = `
+                                <th>Provider</th>
+                                <th>Name Server</th>
+                                <th>Status</th>
+                                <th>IP Address</th>
+                                <th>OS System</th>
+                                <th>Action</th>
+                            `;
+                            table.appendChild(headerRow);
+                            // if (true) {
+                            //     response.servers.forEach(server => {
+                            //         const row = document.createElement("tr");
+                            //         row.innerHTML = `
+                            //             <td>${server.provider || "IdCloudHost"}</td>
+                            //             <td>${server.name || "N/A"}</td>
+                            //             <td><span style="font-size: 12px;" class="${server.status === 'saved' ? 'badge badge-success' : 'bg-red'}">
+                            //             <td>${server.main_ip || "N/A"}</td>
+                            //             <td>${server.os_installed || "N/A"}</td>
+                            //             <td>
+                            //                 <button class="btn btn-primary" onclick="manageServer('${server.id}')">
+                            //                     Manage
+                            //                 </button>
+                            //             </td>
+                            //         `;
+                            //         table.appendChild(row);
+                            //     });
+                            // } else {
+                            //     const noDataRow = document.createElement("tr");
+                            //     noDataRow.innerHTML = `<td colspan="6" class="text-center">No servers found</td>`;
+                            //     table.appendChild(noDataRow);
+                            // }
+
+                            listServer.appendChild(table);
+                            $("#save_button").css("display", "none");
+                            $('#store_button').css("display", "block");
+                        },
+                        error: function(xhr) {
+                            toastr.error("error");
+
+                            $('#get_geos_card').waitMe('hide');
+                        }
+                    });
+                }
+
                 function checkFilledRows() {
                     $(document).ready(function() {
                         $('#get_geos_card').waitMe({
@@ -581,13 +619,13 @@
                             fontSize: '14px',
                         });
                     });
-                
-                    // createVm();
-                displayCreateAndList();
 
-                getVmList();
-                 console.log("this");
-}
+                    // createVm();
+                    displayCreateAndList();
+
+                    getVmList();
+                    console.log("this");
+                }
 
                 function displayCreateAndList() {
                     const firstElement = document.getElementById('droplet_settings_card');
@@ -603,15 +641,25 @@
 
                 }
 
-                function storeServers(){
-                    $ajax({ url: "/storeServers",
-                    method: "POST",               
+                function storeServers(ids) {
+                    $.ajax({
+                        url: "/storeServers",
+                        method: "POST",
+                        data: {
+                            "_token": "{{ csrf_token() }}"
+                        },
 
+                        success: function(response) {
+                            if (response.success) {
+                                console.log("Stored Server IDs: ", response);
+                            } else {
+                                console.log("Response: ", response);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error storing servers:", error);
+                        }
                     });
                 }
-               
-                  
-                   
-                
             </script>
         @endsection

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Config;
 use SSH;
+use Faker\Factory as FakerFactory;
+
 
 class DeliveryServer extends Model
 {
@@ -20,17 +22,11 @@ class DeliveryServer extends Model
 
     public static function generateRandomDomain()
     {
-        $extensions = [".ai",".app",".art",".best",".biz",".ca",".cc",".club",".co",".co.uk",".com",".cx",".de",".design",".dev",".eu",".fm",".fun",".gg",".host",".icu",".id",".in",".inc",".info",".io",".is",".life",".live",".me",".mx",".net",".nl",".online",".org",".ph",".pro",".pw",".shop",".space",".store",".tech",".to",".tv",".uk",".us",".vip",".website",".world",".xyz"];
+        $faker = FakerFactory::create();
 
-        $characters = "abcdefghijklmnopqrstuvwxyz";
+        $domainName = $faker->domainName();
 
-        $length = rand(3,10);
-
-        $randomString = "";
-
-        for ($i = 0; $i < $length; $i++) $randomString .= $characters[rand(0, strlen($characters) - 1)];
-
-        return $randomString.$extensions[array_rand($extensions)];
+        return $domainName;
     }
 
     public static function generateAccessToken($client_id, $client_secret, $tenant_id) 

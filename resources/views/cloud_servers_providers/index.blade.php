@@ -109,6 +109,7 @@
                                     <option value="hetzner">Hetzner</option>
                                     <option value="azure">Azure</option>
                                     <option value="kamatera">Kamatera</option>
+                                    <option value="IdCloudHost">IdCloudHost</option>
                                 </select>
                             </div>
                         </div>

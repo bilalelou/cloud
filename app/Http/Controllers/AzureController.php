@@ -278,7 +278,7 @@ class AzureController extends Controller
         $numberOfVMs = $request->numberOfVMs;
         $password = DB::table('app_settings')->value('default_password');
         $successful_vms = [];
-        
+
         // get access token
         $o_auth = json_decode($provider->o_auth, true);
         $access_token = DeliveryServer::generateAccessToken($o_auth["client_id"], $o_auth["client_secret"], $o_auth["tenant_id"]);
@@ -304,23 +304,22 @@ class AzureController extends Controller
                 $virtualNetwork = $this->createVirtualNetwork($access_token, $subscriptionId, $resourcesNames["resourceGroupName"], $region, $resourcesNames["virtualNetworkName"]);
                 if(array_key_exists("error",$virtualNetwork)) return response()->json(["success" => false,"message" => $virtualNetwork["error"]["message"]]);        
                 sleep(5);
-                
+
                 //create a subnet
                 $subnet = $this->createSubnet($access_token, $subscriptionId, $resourcesNames["resourceGroupName"], $region, $virtualNetwork['name'], $resourcesNames["subnetName"]);
                 if(array_key_exists("error",$subnet)) return response()->json(["success" => false,"message" => $subnet["error"]["message"]]);
                 sleep(5);
-                
+
                 //create a nic
                 $nic = $this->createNic($access_token, $subscriptionId, $resourcesNames["resourceGroupName"], $region, $virtualNetwork['name'], $subnet['name'], $publicIp['id'], $resourcesNames["nicName"]);
                 if(array_key_exists("error",$nic)) return response()->json(["success" => false,"message" => $nic["error"]["message"]]);
                 sleep(5);
-                
+
                 //create the virtual machine
                 $vm = $this->createVm($access_token, $subscriptionId, $resourcesNames["resourceGroupName"], $region, $image, $resourcesNames["nicName"], $resourcesNames["vmName"], $size, $password);
                 if(array_key_exists("error",$vm)) return response()->json(["success" => false,"message" => $vm["error"]["message"]]);
                 sleep(5);
 
-                
                 if(array_key_exists("error",$vm))
                 {
                     return response()->json(["success" => false, "message" => $vm["error"]["message"]]);
@@ -334,7 +333,7 @@ class AzureController extends Controller
                         sleep(5);
                     }
                     while(!array_key_exists("ipAddress", $ip["properties"]));
-                    
+
                     //get vm's status
                     do
                     {
@@ -342,7 +341,7 @@ class AzureController extends Controller
                         sleep(5);
                     }
                     while($status["properties"]["provisioningState"] != "Succeeded");
-                    
+
                     //storing data in database
                     $virtualMachine = new DeliveryServer();
                     $virtualMachine->cloud_id = $vm["properties"]["vmId"];
@@ -355,9 +354,9 @@ class AzureController extends Controller
                     $virtualMachine->interval = "both";
                     $virtualMachine->is_proxy = false;
                     $virtualMachine->main_domain = DeliveryServer::generateRandomDomain();
-        
+
                     $img = $vm["properties"]["storageProfile"]["imageReference"];
-        
+
                     if($img["publisher"] == "OpenLogic" && $img["offer"] == "CentOS" && $img["sku"] == "7_9")
                     {
                         $virtualMachine->os_installed = "centos7";
@@ -374,7 +373,10 @@ class AzureController extends Controller
                     $virtualMachine->ssh_port = 22;
                     $json = ["subscription_id" => $subscriptionId,"resource_group_name" => $resourcesNames["resourceGroupName"]];
                     $virtualMachine->vm_info = json_encode($json);
-        
+
+                    $virtualMachine->type = "cloud";
+                    $virtualMachine->Installation_method = "lite";    
+
                     $virtualMachine->save();
 
                     array_push($successful_vms, $virtualMachine->id);

@@ -277,6 +277,9 @@ class KamateraController extends Controller
                 $kamatera->ssh_key_content = null;
                 $kamatera->ssh_port = 22;
 
+                $kamatera->type = "cloud";
+                $kamatera->Installation_method = "lite";
+
                 $kamatera->save();
 
                 array_push($stored_clean, $kamatera->id);

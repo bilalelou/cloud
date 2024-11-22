@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class RoleAndPermissionSeeder extends Seeder
+class AddEmailProviderSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,6 +13,6 @@ class RoleAndPermissionSeeder extends Seeder
      */
     public function run()
     {
-        //
+
     }
 }

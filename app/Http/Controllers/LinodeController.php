@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DeliveryServer;
 use App\Models\ServerProvider;
 use App\Models\TempDeliveryServer;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -74,7 +75,6 @@ class LinodeController extends Controller
         $response3 = curl_exec($ch);
         $sizes = json_decode($response3, true);
 
-
         return response()->json([
             'success' => true,
             'regions' => $regions,
@@ -85,29 +85,46 @@ class LinodeController extends Controller
 
     public function createLinode(Request $request)
     {
-        set_time_limit(180);
-        $successfull_linodes = [];
+        // set_time_limit(180);
+        $failed_linodes = $successfull_linodes = [];
         $password = DB::table('app_settings')->value('default_password');
-        
+
+        foreach($request["filledRowsData"] as $data)
+        {
+            if ($data["region"] == "None") $error = 'The region field is required.';
+            if ( $data["provider_id"] == "None") $error = 'The email select is required.';
+            if ($data["size"] == "None") $error = 'The size field is required.';
+            if ($data["image"] == "None") $error = 'The image field is required.';
+            if ($data["numberOfServers"] == null) $error = 'The Number of servers field is required.';
+
+            if(isset($error))
+            {
+                return response()->json([
+                    'success' => false,
+                    'message' => $error,
+                ]);
+            }
+        }
+
         foreach($request["filledRowsData"] as $data)
         {
             $provider = ServerProvider::find($data["provider_id"]);
 
-            for ($i = 1; $i <= $data["numberOfServers"]; $i++) 
+            for($i = 1; $i <= $data["numberOfServers"]; $i++) 
             {
                 try
                 {
-                    $rand = rand(0, 9999) . rand(0, 9999);
-                    $label = 'linode-' . $data["size"] . '-' . $rand;
+                    $rand = rand(1000, 9999) . rand(1000, 9999);
+                    $label = $provider->name . "-" . $data["size"] . "-" . $rand;
 
-                    $createUrl = 'https://api.linode.com/v4/linode/instances';
+                    $createUrl = "https://api.linode.com/v4/linode/instances";
 
                     $createData = [
-                        'type' => $data["size"],
-                        'region' => $data["region"], 
-                        'image' => $data["image"],
-                        'root_pass' => $password,
-                        'label' => $label,
+                        "type" => $data["size"],
+                        "region" => $data["region"], 
+                        "image" => $data["image"],
+                        "root_pass" => $password,
+                        "label" => $label,
                     ];
 
                     $ch = curl_init();
@@ -116,19 +133,20 @@ class LinodeController extends Controller
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($createData));
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                        'Authorization: Bearer ' . $provider->cloud_api_key,
-                        'Content-Type: application/json',
+                        "Authorization: Bearer " . $provider->cloud_api_key,
+                        "Content-Type: application/json",
                     ]);
 
                     $response = curl_exec($ch);
 
                     $response = json_decode($response, true);
 
-                    if (array_key_exists('errors', $response))
+                    if(array_key_exists("errors", $response))
                     {
-                        return response()->json([
-                            'success' => false, 
-                            'message' => $response['errors'][0]['reason']
+                        array_push($failed_linodes, [
+                            "region" => $data["region"],
+                            "image" => $data["image"],
+                            "reason" => $response['errors'][0]['reason'],
                         ]);
                     }
                     else
@@ -138,23 +156,23 @@ class LinodeController extends Controller
                         $linode->main_ip = $response['ipv4'][0];
                         $linode->cloud_id = $response['id'];
                         $linode->name = $response['label'];
-                        $linode->os_installed = substr($response['image'] , strpos($response['image'] , '/') + 1);
+                        $linode->os_installed = $this->correctOsName($response['image']);
                         $linode->status = $response['status'];
                         $linode->save();
-                        
-                        array_push($successfull_linodes, $linode->id);
+
+                        $successfull_linodes[] = $linode->id;
                     }
                 }
-                catch (\Exception $e)
+                catch(Exception $e)
                 {
                     return response()->json([
                         'success' => false,
-                        'message' => $e->getMessage()
+                        'message' => "An error has occurred",
                     ]);
                 }
             }
         }
-        
+
         $servers = TempDeliveryServer::find($successfull_linodes);
 
         return response()->json([
@@ -162,13 +180,12 @@ class LinodeController extends Controller
             "message" => "Servers created successfully",
             "linodeIds" => $successfull_linodes,
             "servers" => $servers,
-            'numberOfServers' => $data["numberOfServers"]
+            "failed_linodes" => $failed_linodes,
         ]);
     }
 
     public function storeLinode(Request $request)
     {
-        
         $servers = TempDeliveryServer::find(explode(",", $request->ids));
         $password = DB::table('app_settings')->value('default_password');
 
@@ -185,7 +202,7 @@ class LinodeController extends Controller
                     'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer '. $provider->cloud_api_key,
                 ])->delete($url);
-                    
+
                 if ($response->successful())
                 {
                     $server->delete();
@@ -216,18 +233,21 @@ class LinodeController extends Controller
                 $linode->type = $response['type'];
                 $linode->geo = $response['region'];
                 $linode->main_domain = DeliveryServer::generateRandomDomain();
-                $linode->os_installed = substr($response['image'] , strpos($response['image'] , '/') + 1);
-                
+                $linode->os_installed = $this->correctOsName($response['image']);
+
                 $linode->status = "saved";
                 $linode->ssh_user = "root";
                 $linode->ssh_password = $password;
                 $linode->ssh_key_content = null;
                 $linode->ssh_port = 22;
 
+                $linode->type = "cloud";
+                $linode->Installation_method = "lite";
+
                 $linode->save();
 
                 array_push($stored_clean, $linode->id);
-                
+
                 $server->delete();
             }
         }
@@ -240,6 +260,50 @@ class LinodeController extends Controller
             "linodeIds" => $stored_clean,
             "servers" => $servers
         ]);
+    }
+
+    public function correctOsName($wrongName)
+    {
+        switch($wrongName)
+        {
+            case("linode/centos7"):
+                $rightName = "centos7"; break;
+            case("linode/centos-stream8"):
+                $rightName = "centos_stream8"; break;
+            case("linode/centos-stream9"):
+                $rightName = "centos_stream9"; break;
+
+            case("linode/ubuntu20.04"):
+                $rightName = "ubuntu20"; break;
+            case("linode/ubuntu22.04"):
+                $rightName = "ubuntu22"; break;
+
+            case("linode/debian10"):
+            case("linode/debian11"):
+            case("linode/debian12"):
+                $rightName = "debian"; break;        
+
+            case("linode/almalinux8"):
+            case("linode/almalinux9"):
+                $rightName = "almalinux8"; break;
+
+            case("linode/fedora39"):
+                $rightName = "fedora"; break;
+            case("linode/fedora40"):
+                $rightName = "fedora"; break;
+            case("linode/fedora41"):
+                $rightName = "fedora"; break;
+
+            case("linode/rocky8"):
+                $rightName = "rocky_linux8"; break;
+            case("linode/rocky9"):
+                $rightName = "rocky_linux9"; break;
+
+            default:
+                $rightName = $wrongName; 
+        }
+
+        return $rightName;
     }
 
     // public function getLinodeStatus(Request $request)

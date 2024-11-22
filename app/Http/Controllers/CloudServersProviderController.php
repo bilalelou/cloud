@@ -33,7 +33,7 @@ class CloudServersProviderController extends Controller
         $errors = [];
         
         if($request->name == null) array_push($errors, "Please select a provider name");
-        if(!filter_var($request->email, FILTER_VADATE_EMAIL) || $request->email == null) array_push($errors, "Please insert a valid email");
+        if(!filter_var($request->email, FILTER_VALIDATE_EMAIL) || $request->email == null) array_push($errors, "Please insert a valid email");
         if($request->password == null) array_push($errors, "Please insert a password");
         if(ServerProvider::where("name", $request->name)->where("cloud_email", $request->email)->exists() == true) array_push($errors, "Email already exists for this provider");
         
@@ -41,6 +41,7 @@ class CloudServersProviderController extends Controller
 
         $provider = new ServerProvider();
 
+        $provider->id = rand(10000, 99999);
         $provider->name = $request->name;
         $provider->comment = $request->comment;
         $provider->cloud_email = $request->email;
